@@ -1,0 +1,71 @@
+$line-height: 3;
+$half-height: 2em;
+
+.button {
+  all: unset;
+  -webkit-tap-highlight-color: transparent;
+  background: linear-gradient(to right, var(--palette-primary), var(--palette-secondary));
+  padding: 5px;
+  line-height: $line-height;
+  border-radius: $half-height;
+  transition: box-shadow .2s ease, transform .2s ease;
+  text-align: center;
+  &[disabled] {
+    cursor: not-allowed;
+  }
+  &:not([disabled]) {
+    cursor: pointer;
+    &:hover, &:focus-visible {
+      background: linear-gradient(to right, var(--palette-primary), var(--palette-secondary));
+      box-shadow: -6px 0px 4px 0px var(--palette-primary), 6px 0px 4px 0px var(--palette-secondary);
+    }
+    &:focus-visible {
+      background: linear-gradient(to right, var(--palette-primary), var(--palette-secondary));
+      transform: scale(1.1);
+    }
+    &:active {
+      transform: scale(.9);
+    }
+  }
+  &.inactive {
+    background: transparent;
+  }
+  &[disabled] {
+    background: linear-gradient(to right, darkgrey, dimgrey);
+  }
+  &.icon {
+    height: 38px;
+    width: 38px;
+    padding: 5px;
+    margin: 0;
+    border-radius: 50%;
+  }
+}
+.container {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: $line-height;
+  border-radius: $half-height;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  transition: inherit;
+  background: var(--palette-bgMain);
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: .25em;
+  &.onCard {
+    background: var(--palette-bgCard);
+  }
+  &.icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 28px;
+    width: 28px;
+    padding: 5px;
+    margin: 0;
+    border-radius: 50%;
+  }
+}

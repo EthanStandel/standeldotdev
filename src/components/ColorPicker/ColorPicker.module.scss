@@ -1,0 +1,79 @@
+.container {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.svPane {
+  flex-grow: 1;
+  position: relative;
+  > div {
+    height: 100%;
+    width: 100%;
+  }
+  user-select: none;
+  touch-action: none;
+}
+.vPane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to bottom, transparent, black);
+  cursor: pointer;
+}
+.sliderContainer {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.hueBar {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    hsl(0,100%,50%),
+    hsl(60,100%,50%),
+    hsl(120,100%,50%),
+    hsl(180,100%,50%),
+    hsl(240,100%,50%),
+    hsl(300,100%,50%),
+    hsl(360,100%,50%)
+  );
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+.hueSelector {
+  top: calc(50% - 16px);
+  // When these aren't important I run into an incredibly
+  // strange CSS bug where left is treated as 50%... but
+  // if I trace that property, it just points to this one
+  left: -16px !important;
+  user-select: none;
+  touch-action: none;
+}
+.svSelector {
+  top: -16px !important;
+  left: -16px !important;
+}
+.selector {
+  all: unset;
+  height: 24px;
+  width: 24px;
+  position: absolute;
+  border-radius: 50%;
+  transition: border-color .2s ease;
+  border: 4px solid var(--palette-txtMain);
+  cursor: pointer;
+}
+
+.onCard {
+  background: var(--palette-bgCard);
+}

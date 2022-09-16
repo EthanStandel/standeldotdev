@@ -1,0 +1,76 @@
+---
+import LinkGroup from "./LinkGroup.astro";
+import { MobileMenu } from "./MobileMenu";
+import { ThemeToggle } from "./ThemeToggle";
+---
+<header>
+  <div class="mobile">
+    <MobileMenu client:idle>
+      <LinkGroup animate />
+    </MobileMenu>
+  </div>
+  <div class="desktop">
+    <div class="desktop-links">
+      <LinkGroup />
+    </div>
+    <div class="theme-toggle">
+      <ThemeToggle client:only="solid" />
+    </div>
+  </div>
+</header>
+<style lang="scss">
+  header {
+    --header-height: 64px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    background: linear-gradient(
+      to bottom,
+      var(--palette-bgMain),
+      rgba(0,0,0,0),
+      var(--palette-bgMain),
+    );
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: var(--header-height);
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+
+    .desktop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(650px, calc(100% - 50px));
+
+      > .desktop-links {
+        display: flex;
+        gap: 1em;
+      }
+
+      @media (max-width: 650px) {
+        justify-content: flex-end;
+        > .desktop-links {
+          display: none;
+        }
+
+        .theme-toggle {
+          margin-right: 25px;
+        }
+      }
+    }
+
+    .mobile {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      margin-left: 25px;
+    }
+
+    @media (min-width: 651px) {
+      > .mobile {
+        display: none;
+      }
+    }
+  }
+</style>

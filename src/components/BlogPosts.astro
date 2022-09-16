@@ -1,0 +1,24 @@
+---
+import Link from "./Link.astro";
+
+const posts = (await Astro.glob("../pages/blog/*.mdx"))
+  .filter((post) => 
+    !post.frontmatter.draft && !post.file.endsWith("/index.mdx")
+  );
+---
+<ul class="post">
+  {posts.map(post => (
+    <li>
+      <Link href={post.url!}>
+        {post.frontmatter.title + " →"}
+      </Link>
+    </li>
+  ))}
+</ul>
+<style lang="scss">
+  ul.post {
+    li:not(:last-child) {
+      margin-bottom: .5em;
+    }
+  }
+</style>

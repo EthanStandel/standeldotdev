@@ -1,0 +1,48 @@
+---
+import Link from "../Link.astro";
+
+export interface Props {
+  animate?: boolean;
+}
+
+const { pathname } = Astro.url; 
+const links = [
+  { label: "Home", href: "/" },
+  { label: "Blog", href: "/blog", match: "prefix" },
+  { label: "Theming", href: "/theming" },
+  { label: "About", href: "/about" }
+] as Array<{ label: string, href: string, match?: "exact" | "prefix" }>
+const { animate } = Astro.props;
+---
+{links.map(({ label, href, match = "exact" }, index) => {
+  return (
+    <span class={animate ? "link-animation" : ""} style={animate ? `animation-delay: ${(index + 1) * 100}ms;` : ""}>
+      <Link size="big"
+        href={href}
+        highlight={
+          match === "exact"
+            ? pathname === href
+            : pathname.startsWith(href)
+          }>
+        {label}
+      </Link>
+    </span>
+  );
+})}
+<style>
+  .link-animation {
+    animation: fadeIn .2s ease forwards;
+    transform: translate(-25px);
+    opacity: 0;
+    display: inline-block;
+  }
+</style>
+<script>
+  document.addEventListener("turbo:click", event => {
+    document.body.querySelectorAll("a.highlight")
+      .forEach(link => link.classList.remove("highlight"));
+		if (event.target instanceof HTMLAnchorElement) {
+			event.target.classList.add("highlight");
+		}
+  });
+</script>

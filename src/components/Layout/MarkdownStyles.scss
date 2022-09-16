@@ -1,0 +1,46 @@
+pre {
+  --line-numbers: #bbbbbb;
+  --astro-code-color-text: var(--palette-txtHeavy);
+  --astro-code-color-background: transparent;
+  --astro-code-token-constant: #a6e22e;
+  --astro-code-token-string: #0080ff;
+  --astro-code-token-comment: var(--palette-txtMain);
+  --astro-code-token-keyword: var(--palette-primary);
+  --astro-code-token-parameter: #fd971f;
+  --astro-code-token-function: #00b6db;
+  --astro-code-token-string-expression: #0080ff;
+  --astro-code-token-punctuation: #DD0000;
+  --astro-code-token-link: #2000ee;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  
+  code {
+    counter-reset: step;
+    counter-increment: step 0;
+  }
+
+  code .line::before {
+    content: counter(step);
+    counter-increment: step;
+    width: 2em;
+    margin-right: .5em;
+    display: inline-block;
+    text-align: right;
+    color: var(--line-numbers)
+  }
+}
+
+[alt="Headshot"] {
+  height: 10em;
+  width: 10em;
+  border-radius: 5em;
+  margin-top: 2em;
+  float: right;
+}
+
+details {
+  summary > * {
+    cursor: pointer;
+    display: inline;
+  }
+}

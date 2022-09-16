@@ -1,0 +1,39 @@
+---
+
+---
+<script>
+	import "@hotwired/turbo";
+
+import { sleep } from "../../utils/sleep";
+	document.addEventListener("turbo:click", async () => {
+		document.body.querySelector("main")!.classList.add("out");
+		const transitionTime = sleep(.2);
+		document.addEventListener("turbo:before-render", async (event) => {
+			event.preventDefault();
+			// @ts-ignore
+			const detail = event.detail;
+			detail.newBody.querySelector("main")!.classList.add("in");
+			await transitionTime;
+			detail.resume();
+
+			document.addEventListener("turbo:render", async () => {
+				setTimeout(() => document.querySelector("main")!.classList.remove("in"), 0);
+			}, { once: true });
+		}, { once: true });
+	});
+</script>
+<style lang="scss" is:global>
+  main {
+    transition: opacity .2s ease, transform .2s ease;
+    
+    &.out {
+      opacity: 0;
+      transform: translateX(25px);
+    }
+
+    &.in {
+      opacity: 0;
+      transform: translateX(-25px);
+    }
+  }
+</style>

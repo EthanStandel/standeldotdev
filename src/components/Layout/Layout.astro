@@ -1,0 +1,64 @@
+---
+import Footer from "../Footer.astro";
+import Header from "../Header/Header.astro";
+import RouteTransitions from "./RouteTransitions.astro";
+import ThemeProvider from "./ThemeProvider.astro";
+import "./MarkdownStyles.scss";
+
+export interface Props {
+	title?: string;
+	frontmatter?: any;
+}
+
+const title = Astro.props.title ?? Astro.props.frontmatter.title;
+const now = new Date().toUTCString();
+---
+<!DOCTYPE html>
+<ThemeProvider>
+	<head>
+		<meta name="turbo-cache-control" content="no-cache">
+		<meta name="buildtime" content={now} />
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap" rel="stylesheet">
+		<meta name="generator" content={Astro.generator} />
+		<title>{"Standel.io | " + title}</title>
+		<RouteTransitions />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</ThemeProvider>
+<style lang="scss" is:global>
+	html {
+		font-family: 'Poppins', sans-serif;
+	}
+
+	body {
+		background: var(--palette-bgMain);
+		color: var(--palette-txtMain);
+		min-height: 100vh;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin: 0;
+		// jumpy header between pages drives me bonkers
+		overflow-y: scroll;
+
+		> main {
+			flex-grow: 1;
+			width: 100%;
+			max-width: min(650px, calc(100% - 50px));
+			display: flex;
+			flex-direction: column;
+		}
+	}
+</style>

@@ -1,0 +1,64 @@
+.label {
+  background: linear-gradient(to right, var(--palette-primary), var(--palette-secondary));
+  border-radius: calc(1.5em + 5px);
+  position: relative;
+  min-height: 3em;
+  padding: 5px;
+  display: inline-block;
+  cursor: text;
+  transition: box-shadow .2s ease;
+  &:focus-within {
+    box-shadow: -6px 0px 4px 0px var(--palette-primary), 6px 0px 4px 0px var(--palette-secondary);
+    &.error {
+      box-shadow: -6px 0px 4px 0px red, 6px 0px 4px 0px red;
+    }
+  }
+  margin-top: .5em;
+  margin-bottom: .5em;
+
+  &.error {
+    background: red;
+  }
+}
+
+.input {
+  all: unset;
+  width: calc(100% - 4em);
+  line-height: 1.5;
+  padding-top: .75em;
+  padding-bottom: .75em;
+  border-radius: 1.5em;
+  padding-left: 2em;
+  padding-right: 2em;
+  background: var(--palette-bgMain);
+
+  &.onCard {
+    &, & + span {
+      background: var(--palette-bgCard);
+    }
+  }
+  
+  &.raised, &:focus {
+    & + span {
+      font-size: 12px;
+      top: -6px;
+    }
+  }
+
+  & + span {
+    position: absolute;
+    line-height: 1;
+    top: 1.25em;
+    left: 27px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--palette-bgMain) 10px,
+      var(--palette-bgMain) calc(100% - 10px),
+      transparent
+    );
+    transition: top .1s ease, font-size .1s ease;
+  }
+}

@@ -1,0 +1,27 @@
+.section {
+  background: var(--palette-bgCard);
+  border-radius: 2em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  position: relative;
+
+  &.padding {
+    margin-bottom: 2em;
+    padding-left: 2em;
+    padding-right: 2em;
+    padding-top: 2em;
+    padding-bottom: 2em;
+  }
+
+  .copy > button {
+    transition: opacity .2s ease, transform .2s ease, box-shadow .2s ease;
+    opacity: 0;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+  }
+
+  &:hover .copy > *, .copy > :focus-visible {
+    opacity: 1;
+  }
+}

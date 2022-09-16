@@ -1,0 +1,19 @@
+.checkboxLabel {
+  margin-bottom: 2em;
+
+  input {
+    margin-right: 1em;
+  }
+}
+
+.clear {
+  margin-bottom: 2em;
+}
+
+.cards {
+  > * {
+    h2 {
+      margin-block-start: 0;
+    }
+  }
+}

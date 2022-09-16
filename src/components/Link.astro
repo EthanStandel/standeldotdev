@@ -1,0 +1,62 @@
+---
+export type Props = {
+  href: string;
+  size?: "big" | "medium"
+  highlight?: boolean;
+};
+
+const { href, highlight, size = "medium" } = Astro.props;
+---
+<a href={href} class:list={[size, highlight ? "highlight" : ""]}>
+  <slot />
+</a>
+<style lang="scss">
+  a {
+    all: unset;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-block;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform .2s ease;
+    background: linear-gradient(
+      to right,
+      var(--palette-primary),
+      var(--palette-secondary)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    &::after {
+      content: " ";
+      display: block;
+      width: 0;
+      height: 2px;
+      transition: width .2s ease;
+      background: linear-gradient(
+        to right,
+        var(--palette-primary),
+        var(--palette-secondary)
+      );
+    }
+    &:hover, &:focus-visible, &.highlight {
+      &::after {
+        width: 100%;
+      }
+    }
+
+    &:focus-visible {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(.9);
+    }
+
+    &.big {
+      font-size: 1.5em;
+      &::after {
+        height: 3px;
+      }
+    }
+  }
+</style>
