@@ -7,14 +7,14 @@ export interface Props {
 
 const { pathname } = Astro.url; 
 const links = [
-  { label: "Home", href: "/" },
-  { label: "Blog", href: "/blog", match: "prefix" },
+  { label: "Home", href: "/", match: "exact" },
+  { label: "Blog", href: "/blog" },
   { label: "Theming", href: "/theming" },
   { label: "About", href: "/about" }
 ] as Array<{ label: string, href: string, match?: "exact" | "prefix" }>
 const { animate } = Astro.props;
 ---
-{links.map(({ label, href, match = "exact" }, index) => {
+{links.map(({ label, href, match = "prefix" }, index) => {
   return (
     <span class={animate ? "link-animation" : ""} style={animate ? `animation-delay: ${(index + 1) * 100}ms;` : ""}>
       <Link size="big"
