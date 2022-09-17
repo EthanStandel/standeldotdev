@@ -1,32 +1,35 @@
 ---
 ---
-
 <script>
   import "@hotwired/turbo";
 
   import { sleep } from "../../utils/sleep";
   document.addEventListener("turbo:click", async () => {
+    // set the current main element to fade-right
     document.body.querySelector("main")!.classList.add("out");
+    // define the sleep here because we know the transition has begun
     const transitionTime = sleep(0.2);
     document.addEventListener(
       "turbo:before-render",
       async (event) => {
+        // this will block the render for now
         event.preventDefault();
         // @ts-ignore
         const detail = event.detail;
+        // set the next element to be in the state of fade-left
         detail.newBody.querySelector("main")!.classList.add("in");
+        // make sure the old body completed it's transition
         await transitionTime;
+        // continue with the render
         detail.resume();
 
-        document.addEventListener(
-          "turbo:render",
-          async () => {
-            setTimeout(
-              () => document.querySelector("main")!.classList.remove("in"),
-              0
-            );
-          },
-          { once: true }
+        document.addEventListener("turbo:render", async () => {
+            // sleep for an event loop so that the DOM has time to update
+            await sleep(0);
+            // remove fade-left style, causing transition back to default position
+            document.querySelector("main")!.classList.remove("in");
+        },
+        { once: true }
         );
       },
       { once: true }

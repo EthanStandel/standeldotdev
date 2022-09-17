@@ -1,0 +1,91 @@
+---
+layout: ../../components/Layout/Layout.astro
+title: (WIP) Your MPA can have page transitions!
+---
+import { Card } from "../../components/Card";
+
+# (WIP) Your MPA can have page transitions!
+
+> _tl;dr [`@hotwired/turbo`](https://www.npmjs.com/package/@hotwired/turbo)_
+
+## Traditional MPA limitations
+
+[This website](https://standel.io) is a statically generated MPA.
+It's built with [Astro](https://astro.build/), and while it does contain some [islands of interactivity](https://docs.astro.build/en/concepts/islands/), it does not hydrate in an SPA router because that's not a feature of Astro like it is with [Next](https://nextjs.org/) or [Remix](https://remix.run/).
+But you might notice it still has nice smooth transitions between routes! Go ahead try them out, but please do come back 🙂
+
+This site uses a tool that can provide this feature to _any_ MPA.
+So whether you're using Java & JSPs or C# & ASP.NET, with just a small script tag, you can have nice smooth route transitions between pages without having to change frameworks.
+And if your users have JavaScript disabled, the site will work just the same!
+
+## How Turbo Drive works
+
+The required depedency is called [`@hotwired/turbo`](https://www.npmjs.com/package/@hotwired/turbo) or just "Turbo Drive" as Hotwire refers to it in [their docs](https://turbo.hotwired.dev/).
+Turbo Drive will query your document for all links & form tags, and then add an override for their their click/submission events respectively.
+Then when the user attempts an action on one of these elements that would cause navigation, it will instead start streaming down the intended destination.
+Turbo Drive will construct the new document body into a DOM node, and then it will replace the old document with the new document.
+
+However, every step of this process fires a different event which can be controlled and managed.
+So when a link is clicked that is going to fire the Turbo Drive navigation, there will be a `turbo:click` fired on the document. When the new document has been downloaded and parsed but hasn't been placed in the active DOM, there is a `turbo:before-render` event. And once the new document has been attached to the active DOM, there's a `turbo:render` event.
+
+There are [serveral other events](https://turbo.hotwired.dev/reference/events) within this process, but these three events are all we need to add route transitions!
+
+## How this site manipulates the Turbo Drive event flow
+
+For this site, the process starts by listening to all `turbo:click` events.
+When we catch that event, we append the class onto the current `main` element which adds the outward transitioning styles, and then we add a one-time listener for the next `turbo:before-render` event.
+
+Notably, we could've appended the transition-out class in in the `turbo:before-render` event but then we wouldn't start transitioning until the next page had been downloaded and we, ideally, want to run transitions while we're downloading the next page.
+This method also also gives a more active feedback to the user's click of the link, because rather than having to wait they immediately see the current page start to transition out.
+For this site I also always work with the `main` element because that allows my `header` & `footer` elements to remain static as they don't need to transition page by page.
+
+When the `turbo:before-render` event fires, we know that we have the new parsed document body, and we append the styles that would put the new `main` in a visual state of having had been transitioned out. These styles can't exist on the initial render of the new document because then the page would be effectively invisible with JavaScript disabled.
+In the same event listener, we add another one-time listener for the `turbo:render` event.
+
+Once the `turbo:render` event has fired, we know that the new document body has been added to the DOM so we can just remove the class we previously added which will transition the new document into its default position.
+
+That code ends up looking like this
+
+<Card withCopy client:idle>
+```ts
+import "@hotwired/turbo";
+
+import { sleep } from "../../utils/sleep";
+document.addEventListener("turbo:click", async () => {
+  // set the current main element to fade-right
+  document.body.querySelector("main")!.classList.add("out");
+  // define the sleep here because we know the transition has begun
+  const transitionTime = sleep(0.2);
+  document.addEventListener(
+    "turbo:before-render",
+    async (event) => {
+      // this will block the render for now
+      event.preventDefault();
+      // @ts-ignore
+      const detail = event.detail;
+      // set the next element to be in the state of fade-left
+      detail.newBody.querySelector("main")!.classList.add("in");
+      // make sure the old body completed it's transition
+      await transitionTime;
+      // continue with the render
+      detail.resume();
+
+      document.addEventListener("turbo:render", async () => {
+          // sleep for an event loop so that the DOM has time to update
+          await sleep(0);
+          // remove fade-left style, causing transition back to default position
+          document.querySelector("main")!.classList.remove("in");
+      },
+      { once: true }
+      );
+    },
+    { once: true }
+  );
+});
+```
+</Card>
+
+## Conclusions
+
+I believe that animations generally enhance experiences.
+For the strong UX impression that microinteractions like this leave on your users, I would argue that this is absolutely worth adding a small set-it-and-forget-it `script` tag to your MPA with a transitional aesthetic that fits your site and its users.
