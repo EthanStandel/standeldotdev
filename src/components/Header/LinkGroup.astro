@@ -41,8 +41,8 @@ const { animate } = Astro.props;
   document.addEventListener("turbo:click", event => {
     document.body.querySelectorAll("a.highlight")
       .forEach(link => link.classList.remove("highlight"));
-		if (event.target instanceof HTMLAnchorElement) {
-			event.target.classList.add("highlight");
-		}
+    if (event.target instanceof HTMLAnchorElement) {
+      event.target.classList.add("highlight");
+    }
   });
 </script>

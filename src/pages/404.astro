@@ -3,34 +3,34 @@ import Layout from '../components/Layout/Layout.astro';
 ---
 
 <Layout title="404 Whoops">
-	<div>
-		<h1>404</h1>
-		<h2>Oh geez, I hope this wasn't my fault</h2>
-	</div>
+  <div>
+    <h1>404</h1>
+    <h2>Oh geez, I hope this wasn't my fault</h2>
+  </div>
 </Layout>
 <style lang="scss">
-	div {
-		height: 100%;
-		width: 100%;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+  div {
+    height: 100%;
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-		h1, h2 {
-			text-align: center;
-			background: linear-gradient(
-				to right,
-				var(--palette-primary),
-				var(--palette-secondary)
-			);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-		}
+    h1, h2 {
+      text-align: center;
+      background: linear-gradient(
+        to right,
+        var(--palette-primary),
+        var(--palette-secondary)
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-		h1 {
-			font-size: 4em;
-		}
-	}
+    h1 {
+      font-size: 4em;
+    }
+  }
 </style>
