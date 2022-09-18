@@ -8,11 +8,12 @@ export type Props = {
 const { href, highlight, size = "medium" } = Astro.props;
 ---
 <a href={href} class:list={[size, highlight ? "highlight" : ""]}>
-  <slot />
+  <span><slot /></span>
 </a>
 <style lang="scss">
   a {
     all: unset;
+    position: relative;
     -webkit-tap-highlight-color: transparent;
     display: inline-block;
     cursor: pointer;
@@ -25,22 +26,23 @@ const { href, highlight, size = "medium" } = Astro.props;
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    
-    &::after {
-      content: " ";
-      display: block;
-      width: 0;
-      height: 2px;
-      transition: width .2s ease;
+    > span {
+      cursor: inherit;
       background: linear-gradient(
         to right,
         var(--palette-primary),
         var(--palette-secondary)
       );
+      background-size: 0% 3px;
+      background-repeat: no-repeat;
+      background-position: left bottom;
+      transition: background-size .2s ease;
     }
+    
+
     &:hover, &:focus-visible, &.highlight {
-      &::after {
-        width: 100%;
+      > span {
+        background-size: 100% 3px;
       }
     }
 
@@ -54,7 +56,7 @@ const { href, highlight, size = "medium" } = Astro.props;
 
     &.big {
       font-size: 1.5em;
-      &::after {
+      .secondary {
         height: 3px;
       }
     }

@@ -16,8 +16,19 @@ const posts = (await Astro.glob("../pages/blog/*.mdx"))
   ))}
 </ul>
 <style lang="scss">
-  ul.post {
-    li:not(:last-child) {
+  ul {
+    padding: 0;
+  }
+  ul.post li {
+    display: flex;
+    &::marker {
+      display: none;
+    }
+    &::before{
+      content: "•";
+      margin-right: 1.5em;
+    }
+    &:not(:last-child) {
       margin-bottom: .5em;
     }
   }
