@@ -44,3 +44,15 @@ details {
     display: inline;
   }
 }
+
+img {
+  max-width: 100%;
+  border-radius: 1.5em;
+}
+
+p code {
+  background: var(--palette-bgCard);
+  padding: 4px;
+  border-radius: 1em;
+  color: var(--palette-primary)
+}
