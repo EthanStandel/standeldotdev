@@ -38,9 +38,9 @@ pre {
   float: right;
 }
 
-details {
-  summary > * {
-    cursor: pointer;
+details summary {
+  cursor: pointer;
+  > * {
     display: inline;
   }
 }
@@ -50,7 +50,7 @@ img {
   border-radius: 1.5em;
 }
 
-p code {
+p code, details code {
   background: var(--palette-bgCard);
   padding: 4px;
   border-radius: 1em;
