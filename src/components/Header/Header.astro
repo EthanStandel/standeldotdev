@@ -45,6 +45,15 @@ import { ThemeToggle } from "./ThemeToggle";
     justify-content: center;
     z-index: 1;
 
+    @keyframes gradient {
+      0% {
+        background-position: 0% 100%;
+      }
+      100% {
+        background-position: 100% 200%;
+      }
+    }
+
     .branding {
       display: flex;
       justify-content: center;
@@ -55,9 +64,14 @@ import { ThemeToggle } from "./ThemeToggle";
         z-index: 1;
         background: linear-gradient(
           to right,
-          var(--palette-primary),
-          var(--palette-secondary)
+          var(--palette-primary) 0%,
+          var(--palette-secondary) 25%,
+          var(--palette-primary) 50%,
+          var(--palette-primary) 75%,
+          var(--palette-secondary) 100%
         );
+        background-size: 400% 100%;
+        animation: gradient 3s linear infinite;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: bold;
@@ -74,9 +88,14 @@ import { ThemeToggle } from "./ThemeToggle";
         width: 100%;
         background: linear-gradient(
           to right,
-          var(--palette-primary),
-          var(--palette-secondary)
+          var(--palette-primary) 0%,
+          var(--palette-secondary) 25%,
+          var(--palette-primary) 50%,
+          var(--palette-primary) 75%,
+          var(--palette-secondary) 100%
         );
+        background-size: 400% 100%;
+        animation: gradient 3s linear infinite;
       }
 
       &::after {
