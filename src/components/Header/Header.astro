@@ -4,13 +4,21 @@ import { MobileMenu } from "./MobileMenu";
 import { ThemeToggle } from "./ThemeToggle";
 ---
 <header>
-  <div class="mobile">
+  <div class="mobile menu">
     <MobileMenu client:idle>
       <LinkGroup animate />
     </MobileMenu>
   </div>
-  <div class="desktop">
+  <div class="mobile">
+    <div class="branding">
+      <span>standel.io</span>  
+    </div>
+  </div>
+  <div class="right-group">
     <div class="desktop-links">
+      <div class="branding">
+        <span>standel.io</span>  
+      </div>
       <LinkGroup />
     </div>
     <div class="theme-toggle">
@@ -37,11 +45,59 @@ import { ThemeToggle } from "./ThemeToggle";
     justify-content: center;
     z-index: 1;
 
-    .desktop {
+    .branding {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+
+      > span {
+        z-index: 1;
+        background: linear-gradient(
+          to right,
+          var(--palette-primary),
+          var(--palette-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: bold;
+        font-size: 1.5em;
+        padding: 10px;
+        line-height: 1;
+      }
+      &::before {
+        content: " ";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(
+          to right,
+          var(--palette-primary),
+          var(--palette-secondary)
+        );
+      }
+
+      &::after {
+        content: " ";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        height: calc(100% - 10px);
+        width: calc(100% - 10px);
+        background: var(--palette-bgMain);
+      }
+    }
+
+    .right-group {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: min(650px, calc(100% - 50px));
+
+      @media (min-width: 651px) {
+        width: min(650px, calc(100% - 50px));
+      }
 
       > .desktop-links {
         display: flex;
@@ -64,7 +120,9 @@ import { ThemeToggle } from "./ThemeToggle";
       flex-grow: 1;
       display: flex;
       align-items: center;
-      margin-left: 25px;
+      &.menu {
+        margin-left: 25px;
+      }
     }
 
     @media (min-width: 651px) {

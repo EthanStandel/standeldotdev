@@ -16,7 +16,7 @@ const { animate } = Astro.props;
 ---
 {links.map(({ label, href, match = "prefix" }, index) => {
   return (
-    <span class={animate ? "link-animation" : ""} style={animate ? `animation-delay: ${(index + 1) * 100}ms;` : ""}>
+    <span class={[animate ? "link-animation" : "", "center"].join(" ")} style={animate ? `animation-delay: ${(index + 1) * 100}ms;` : ""}>
       <Link size="big"
         href={href}
         highlight={
@@ -29,12 +29,18 @@ const { animate } = Astro.props;
     </span>
   );
 })}
-<style>
+<style lang="scss">
   .link-animation {
     animation: fadeIn .2s ease forwards;
     transform: translate(-25px);
     opacity: 0;
     display: inline-block;
+  }
+
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>
 <script>
