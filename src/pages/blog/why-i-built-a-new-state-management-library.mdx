@@ -269,7 +269,7 @@ const userStore = {
 
 So this now builds the original concept of `destore` and `store` into one recursive model.
 The advantage that this model provides to developers is that to the greatest extent possible, you no longer have to worry about things like where to put commonly updated state subscriptions or how to construct the most optimal selector function.
-Now you just take data straight off a static looking object and you place it where you feel it should be placed.
+Now you just take data straight off a static _looking_ object and you place it where you feel it should be placed.
 
 And just as `@preact/signals` exports both `signal` and `useSignal`, `preact-signal-store` now exports `deepSignal` and `useDeepSignal`.
 This makes for a version of state that's far more like class components with only a single object for all states in a component.

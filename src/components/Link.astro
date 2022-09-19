@@ -13,8 +13,7 @@ const { href, highlight, size = "medium" } = Astro.props;
 <style lang="scss">
   a {
     all: unset;
-    display: inline-block;
-    position: relative;
+    display: inline;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     font-weight: bold;
@@ -27,15 +26,14 @@ const { href, highlight, size = "medium" } = Astro.props;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     > span {
-      display: inline-block;
-      line-height: 1.6em;
+      display: inline;
       cursor: inherit;
       background: linear-gradient(
         to right,
         var(--palette-primary),
         var(--palette-secondary)
       );
-      background-size: 0% 3px;
+      background-size: 0 3px;
       background-repeat: no-repeat;
       background-position: left bottom;
       transition: background-size .2s ease;
