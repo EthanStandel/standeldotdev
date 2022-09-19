@@ -13,9 +13,9 @@ const { href, highlight, size = "medium" } = Astro.props;
 <style lang="scss">
   a {
     all: unset;
+    display: inline-block;
     position: relative;
     -webkit-tap-highlight-color: transparent;
-    display: inline-block;
     cursor: pointer;
     font-weight: bold;
     transition: transform .2s ease;
@@ -27,6 +27,8 @@ const { href, highlight, size = "medium" } = Astro.props;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     > span {
+      display: inline-block;
+      line-height: 1.6em;
       cursor: inherit;
       background: linear-gradient(
         to right,
