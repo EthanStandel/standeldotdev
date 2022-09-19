@@ -51,16 +51,6 @@ const palette = {
   @import url(
     "https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap"
   );
-  @keyframes fadeIn {
-    0% {
-      transform: translate(-25px);
-      opacity: 0;
-    }
-    100% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
 
   html {
     font-family: 'Poppins', sans-serif;
@@ -129,5 +119,25 @@ const palette = {
       display: flex;
       flex-direction: column;
     }
+  }
+
+  @keyframes fadeIn {
+    0% {
+      transform: translate(-25px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .turbo-progress-bar {
+    height: 5px;
+    background: linear-gradient(
+      to right,
+      var(--palette-primary),
+      var(--palette-secondary)
+    )
   }
 </style>

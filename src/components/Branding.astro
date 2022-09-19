@@ -1,0 +1,70 @@
+---
+import Link from "./Link.astro";
+
+---
+<Link href="/">
+  <div class="branding">
+    <span>standel.io</span>  
+  </div>
+</Link>
+<style lang="scss">
+  @keyframes gradient {
+    0% {
+      background-position: 0% 100%;
+    }
+    100% {
+      background-position: 100% 200%;
+    }
+  }
+  .branding {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    > span, &::before {
+      transition: background-position .2s ease;
+      background: linear-gradient(
+        to right,
+        var(--palette-primary),
+        var(--palette-secondary),
+        var(--palette-primary),
+        var(--palette-primary),
+        var(--palette-secondary)
+      );
+      background-size: 400% 100%;
+      // commenting this out until I can get it to get along with Turbo Drive
+      // animation: gradient 5s linear infinite;
+    }
+
+    > span {
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      font-size: 1.5em;
+      padding: 10px;
+      line-height: 1;
+      z-index: 3;
+    }
+
+    &::before {
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    &::after {
+      content: " ";
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      height: calc(100% - 10px);
+      width: calc(100% - 10px);
+      background: var(--palette-bgMain);
+      z-index: 2;
+    }
+  }
+</style>
