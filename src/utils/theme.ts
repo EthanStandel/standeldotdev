@@ -82,14 +82,39 @@ const setCustomPaletteVariables = (customTheme?: FullPalette) => {
   }
 }
 
+const validateHashColor = (color = ""): boolean => {
+  if (color.length !== 7) {
+    return false;
+  } 
+  if (color.charAt(0) !== "#") {
+    return false;
+  }
+  const value = parseInt(color.slice(1), 16);
+  return value <= 0xffffff && value >= 0;
+}
+
+const validateTheme = (palette: Partial<FullPalette> = {}): boolean => (
+  validateHashColor(palette.primary)
+  && validateHashColor(palette.secondary)
+  && validateHashColor(palette.bgMain)
+  && validateHashColor(palette.bgCard)
+  && validateHashColor(palette.txtHeavy)
+  && validateHashColor(palette.txtMain)
+);
+
 const getCustomPalette = () => {
-  const storedTheme = localStorage.getItem(customThemeStorageKey);
+  const storedThemeString = localStorage.getItem(customThemeStorageKey);
+  const storedTheme = JSON.parse(storedThemeString || "{}");
+  const storedThemeValid = validateTheme(storedTheme);
+  if (!storedThemeValid) {
+    console.error("Invalid stored theme");
+  }
   const customTheme = (
-    storedTheme
-      ? JSON.parse(storedTheme) 
+    storedThemeValid
+      ? storedTheme
       : { ...darkPalette, ...basePalette }
   ) as FullPalette;
-    setCustomPaletteVariables(customTheme);
+  setCustomPaletteVariables(customTheme);
   return customTheme;
 }
 

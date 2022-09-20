@@ -31,6 +31,7 @@ const palette = {
     <meta name="buildtime" content={now} />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta name="turbo-body" content="main" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +42,7 @@ const palette = {
   </head>
   <body>
     <Header />
-    <main>
+    <main id="main">
       <slot />
     </main>
     <Footer />
@@ -132,6 +133,17 @@ const palette = {
     }
   }
 
+  @keyframes fadeBack {
+    0% {
+      transform: translate(25px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
   .turbo-progress-bar {
     height: 5px;
     background: linear-gradient(
@@ -139,5 +151,11 @@ const palette = {
       var(--palette-primary),
       var(--palette-secondary)
     )
+  }
+
+  astro-slot, astro-island {
+    // this should be default but it goes missing at weird times
+    // probably an issue between Astro & Turbo Drive
+    display: contents !important;
   }
 </style>

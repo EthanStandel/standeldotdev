@@ -25,9 +25,14 @@ export const MobileMenu: Component<MobileMenuProps> = (props) => {
   }
 
   onMount(() => {
-    const closeOnTurbo = () => mobileToggle!.checked = false;
-    document.addEventListener("turbo:click", closeOnTurbo);
-    onCleanup(() => document.removeEventListener("turbo:click", closeOnTurbo));
+    document.addEventListener("turbo:click", async () => {
+      if (mobileToggle!.checked) {
+        setExiting(true);
+        await sleep(.2);
+        mobileToggle!.checked = false;
+        setExiting(false);
+      }
+    });
   });
 
   return (

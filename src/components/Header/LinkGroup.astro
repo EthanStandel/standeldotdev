@@ -6,17 +6,21 @@ export interface Props {
 }
 
 const { pathname } = Astro.url; 
-const links = [
-  { label: "Home", href: "/", match: "exact" },
-  { label: "Blog", href: "/blog" },
-  { label: "Theming", href: "/theming" },
-  { label: "About", href: "/about" }
-] as Array<{ label: string, href: string, match?: "exact" | "prefix" }>
+const links = {
+  "/": { label: "Home", href: "/", match: "exact" },
+  "/blog": { label: "Blog", href: "/blog" },
+  "/theming": { label: "Theming", href: "/theming" },
+  "/about": { label: "About", href: "/about" }
+} as Record<string, { label: string, href: string, match?: "exact" | "prefix" }>
 const { animate } = Astro.props;
 ---
-{links.map(({ label, href, match = "prefix" }, index) => {
+{Object.values(links).map(({ label, href, match = "prefix" }, index) => {
   return (
-    <span class={[animate ? "link-animation" : "", "center"].join(" ")} style={animate ? `animation-delay: ${(index + 1) * 100}ms;` : ""}>
+    <span class:list={[animate ? "link-animation" : "", "center"]}
+      style={
+        animate
+          ? `animation-delay: ${(index + 1) * 100}ms;` 
+          : ""}>
       <Link size="big"
         href={href}
         highlight={
@@ -43,12 +47,23 @@ const { animate } = Astro.props;
     align-items: center;
   }
 </style>
-<script>
-  document.addEventListener("turbo:click", event => {
-    document.body.querySelectorAll("a.highlight")
+<script define:vars={{ links }}>
+  const navHandler = (event) => {
+    const nextpath = event instanceof CustomEvent ? new URL(event.detail.url).pathname : location.pathname
+    document.body.querySelectorAll("header a.highlight")
       .forEach(link => link.classList.remove("highlight"));
-    if (event.target instanceof HTMLAnchorElement) {
-      event.target.classList.add("highlight");
-    }
-  });
+    document.querySelectorAll("header a.big").forEach(anchor => {
+      const link = links[new URL(anchor.href).pathname];
+      if(
+        !!link && (
+          link.match === "exact"
+            ? nextpath === link.href
+            : nextpath.startsWith(link.href))
+      ) {
+        anchor.classList.add("highlight");
+      }
+    })
+  }
+  document.addEventListener("turbo:click", navHandler);
+  window.addEventListener("popstate", navHandler);
 </script>
