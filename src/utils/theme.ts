@@ -51,8 +51,9 @@ const basePalette = {
 const darkPalette = {
   bgMain: "#20201c",
   bgCard: "#000000",
-  txtMain: "#eeeeee",
+  txtMain: "#dddddd",
   txtHeavy: "#ffffff",
+  txtDim: "#999999",
 }
 
 const lightPalette: typeof darkPalette = {
@@ -60,6 +61,7 @@ const lightPalette: typeof darkPalette = {
   bgCard: "#ffffff",
   txtMain: "#222222",
   txtHeavy: "#000000",
+  txtDim: "#666666"
 };
 
 type FullPalette = typeof darkPalette & typeof basePalette;
@@ -72,6 +74,7 @@ const setCustomPaletteVariables = (customTheme?: FullPalette) => {
     document.documentElement.style.setProperty("--palette-bgCard", customTheme.bgCard);
     document.documentElement.style.setProperty("--palette-txtMain", customTheme.txtMain);
     document.documentElement.style.setProperty("--palette-txtHeavy", customTheme.txtHeavy);
+    document.documentElement.style.setProperty("--palette-txtDim", customTheme.txtDim);
   } else {
     document.documentElement.style.removeProperty("--palette-primary");
     document.documentElement.style.removeProperty("--palette-secondary");
@@ -79,6 +82,7 @@ const setCustomPaletteVariables = (customTheme?: FullPalette) => {
     document.documentElement.style.removeProperty("--palette-bgCard");
     document.documentElement.style.removeProperty("--palette-txtMain");
     document.documentElement.style.removeProperty("--palette-txtHeavy");
+    document.documentElement.style.removeProperty("--palette-txtDim");
   }
 }
 

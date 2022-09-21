@@ -14,6 +14,8 @@ export const CustomThemingForm = () => {
   const [bgCard, setbgCard] = createSignal(color.hexToRgb(customTheme.bgCard));
   const [txtMain, setTxtMain] = createSignal(color.hexToRgb(customTheme.txtMain));
   const [txtHeavy, setTxtHeavy] = createSignal(color.hexToRgb(customTheme.txtHeavy));
+  const [txtDim, setTxtDim] = createSignal(color.hexToRgb(customTheme.txtDim));
+
 
   createEffect(() => {
     updateCustomPalette({
@@ -23,6 +25,7 @@ export const CustomThemingForm = () => {
       bgCard: color.rgbToHex(bgCard()),
       txtMain: color.rgbToHex(txtMain()),
       txtHeavy: color.rgbToHex(txtHeavy()),
+      txtDim: color.rgbToHex(txtDim())
     })
   })
 
@@ -64,6 +67,14 @@ export const CustomThemingForm = () => {
           <Card padding>
             <h2>Heavy text color</h2>
             <ColorPicker color={txtHeavy()} setColor={setTxtHeavy} />
+          </Card>
+          <Card padding>
+            <h2>Dim text color</h2>
+            <ColorPicker color={txtHeavy()} setColor={setTxtHeavy} />
+          </Card>
+          <Card padding>
+            <h2>Dim text color</h2>
+            <ColorPicker color={txtDim()} setColor={setTxtDim} />
           </Card>
         </section>
         <Button class={styles.clear!} onClick={() => {
