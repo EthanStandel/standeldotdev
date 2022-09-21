@@ -93,6 +93,7 @@ const validateHashColor = (color = ""): boolean => {
   if (color.charAt(0) !== "#") {
     return false;
   }
+  console.log(color);
   const value = parseInt(color.slice(1), 16);
   return value <= 0xffffff && value >= 0;
 }
@@ -104,6 +105,7 @@ const validateTheme = (palette: Partial<FullPalette> = {}): boolean => (
   && validateHashColor(palette.bgCard)
   && validateHashColor(palette.txtHeavy)
   && validateHashColor(palette.txtMain)
+  && validateHashColor(palette.txtDim)
 );
 
 const getCustomPalette = () => {
