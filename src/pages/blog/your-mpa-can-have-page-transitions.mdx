@@ -1,15 +1,20 @@
 ---
 layout: ../../components/Layout/Layout.astro
 title: (WIP) Your MPA can have page transitions!
+date: 9.17.22
 ---
 import { Card } from "../../components/Card";
+import ArticleHeading from "../../components/ArticleHeading.astro";
 
-# (WIP) Your MPA can have page transitions!
-
-<details>
-  <summary>tl;dr</summary>
-  [`@hotwired/turbo`](https://www.npmjs.com/package/@hotwired/turbo)
-</details>
+<ArticleHeading 
+  title={frontmatter.title}
+  date={frontmatter.date}
+  readingTime={frontmatter.minutesRead}
+>
+  <a slot="tldr" href="https://www.npmjs.com/package/@hotwired/turbo">
+    <code>@hotwired/turbo</code>
+  </a>
+</ArticleHeading>
 
 ## Traditional MPA limitations
 

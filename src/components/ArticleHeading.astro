@@ -1,0 +1,65 @@
+---
+import Divider from './Divider.astro';
+
+export interface Props {
+  title: string;
+  date: string;
+  readingTime: string;
+}
+
+const { title, date, readingTime } = Astro.props;
+---
+<h1>{title}</h1>
+<h5>
+  <span>
+    <img src="/headshot.jpeg" />
+    Ethan Standel //
+    {date}
+  </span>
+  <span>
+    {readingTime}
+  </span>
+</h5>
+<details>
+  <summary>tl;dr?</summary>
+  <slot name="tldr" />
+</details>
+<Divider />
+<style lang="scss">
+  h5 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-block-start: 0;
+    margin-block-end: 0;
+
+    > span {
+      display: flex;
+      align-items: center;
+      margin-top: .5em;
+      margin-bottom: .5em;
+      &:not(:first-child) {
+        margin-left: 3rem;
+      }
+    }
+  }
+  details {
+    margin-top: .5em;
+    margin-bottom: .5em;
+    margin-left: 3rem;
+    > * {
+      display: inline-block;
+    }
+    > summary {
+      margin-right: 1em;
+      text-decoration: underline;
+    }
+  }
+  img {
+    height: 2rem;
+    width: 2rem;
+    margin-right: 1rem;
+    display: inline-block;
+    border-radius: 1rem;
+  }
+</style>

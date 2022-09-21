@@ -1,15 +1,18 @@
 ---
 layout: ../../components/Layout/Layout.astro
 title: (WIP) You don't need JavaScript to support theming
+date: 9.18.22
 ---
 import { Card } from "../../components/Card";
+import ArticleHeading from "../../components/ArticleHeading.astro";
 
-# (WIP) You don't need JavaScript to support theming
-
-<details>
-  <summary>tl;dr</summary>
-  CSS variables & `@media (prefers-color-scheme: dark)`
-</details>
+<ArticleHeading 
+  title={frontmatter.title}
+  date={frontmatter.date}
+  readingTime={frontmatter.minutesRead}
+>
+  <span slot="tldr">CSS variables & <code>@media (prefers-color-scheme: dark)</code></span>
+</ArticleHeading>
 
 ## CSS variables as theme tokens
 
@@ -44,7 +47,7 @@ html, body {
 And with that, you've defined a theme.
 But how can you make it dynamic without JavaScript?
 For that we have the media query `prefers-color-scheme`, which will identify the user's system theme preference and adjust styles accordingly.
-The traditional move would be that 
+The traditional move would be that you define a light palette as a default and then provide dark styles for those whose devices idenitfy that preference like so.
 
 <Card withCopy client:idle>
 ```css

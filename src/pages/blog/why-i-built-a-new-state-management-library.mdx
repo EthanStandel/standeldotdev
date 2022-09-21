@@ -1,15 +1,20 @@
 ---
 layout: ../../components/Layout/Layout.astro
 title: (WIP) Why I built a new state management library
+date: 9.15.22
 ---
 import { Card } from "../../components/Card";
+import ArticleHeading from "../../components/ArticleHeading.astro";
 
-# (WIP) Why I built a new state management library
-
-<details>
-  <summary>tl;dr</summary>
-  [`preact-signal-store`](https://www.npmjs.com/package/preact-signal-store)
-</details>
+<ArticleHeading 
+  title={frontmatter.title}
+  date={frontmatter.date}
+  readingTime={frontmatter.minutesRead}
+>
+  <a slot="tldr" href="https://www.npmjs.com/package/preact-signal-store">
+    <code>preact-signal-store</code>
+  </a>
+</ArticleHeading>
 
 ## Okay, I know what you're thinking...
 

@@ -35,6 +35,7 @@ pre {
   width: 10em;
   border-radius: 5em;
   margin-top: 2em;
+  margin-left: 1em;
   float: right;
 }
 
@@ -45,9 +46,18 @@ details summary {
   }
 }
 
+p {
+  text-align: justify;
+}
+
 p > img {
   max-width: 100%;
   border-radius: 1.5em;
+}
+
+h1 {
+  color: var(--palette-txtHeavy);
+  text-align: center;
 }
 
 p code, details code {
