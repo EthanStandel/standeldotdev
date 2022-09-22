@@ -93,7 +93,6 @@ const validateHashColor = (color = ""): boolean => {
   if (color.charAt(0) !== "#") {
     return false;
   }
-  console.log(color);
   const value = parseInt(color.slice(1), 16);
   return value <= 0xffffff && value >= 0;
 }

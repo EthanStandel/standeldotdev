@@ -1,12 +1,19 @@
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { ColorPicker } from "../ColorPicker";
 import { getCustomPalette, updateCustomPalette, setThemeMode, themeMode, basePalette, darkPalette } from "../../utils/theme";
 import styles from "./CustomThemingForm.module.scss";
 import { color } from "../../utils/color";
 import { Button } from "../Button";
 import { Card } from "../Card/Card";
+import { ClientRenderGuard } from "../ClientRenderGuard";
 
-export const CustomThemingForm = () => {
+export const CustomThemingForm = () => (
+  <ClientRenderGuard>
+    <GuardedCustomThemingForm />
+  </ClientRenderGuard>
+);
+
+const GuardedCustomThemingForm = () => {
   const customTheme = getCustomPalette();
   const [primary, setPrimary] = createSignal(color.hexToRgb(customTheme.primary));
   const [secondary, setSecondary] = createSignal(color.hexToRgb(customTheme.secondary));
@@ -15,7 +22,6 @@ export const CustomThemingForm = () => {
   const [txtMain, setTxtMain] = createSignal(color.hexToRgb(customTheme.txtMain));
   const [txtHeavy, setTxtHeavy] = createSignal(color.hexToRgb(customTheme.txtHeavy));
   const [txtDim, setTxtDim] = createSignal(color.hexToRgb(customTheme.txtDim));
-
 
   createEffect(() => {
     updateCustomPalette({
@@ -40,9 +46,7 @@ export const CustomThemingForm = () => {
           )} />
         <span>Start using a custom theme</span>
       </label>
-
-      {themeMode() === "custom" && (
-        <>
+      <Show when={themeMode() === "custom"}>
         <section class={styles.cards!}>
           <Card padding>
             <h2>Primary color</h2>
@@ -85,8 +89,7 @@ export const CustomThemingForm = () => {
           setTxtMain(color.hexToRgb(darkPalette.txtMain));
           setTxtHeavy(color.hexToRgb(darkPalette.txtHeavy));
         }}>Clear custom theme back to base dark</Button>
-      </>
-    )}
+      </Show>
     </>
   );
 }
