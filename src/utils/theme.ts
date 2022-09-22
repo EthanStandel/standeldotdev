@@ -7,22 +7,27 @@ type ThemeMode = "light" | "dark" | "custom";
 const themeModeStorageKey = "THEME_MODE_KEY";
 const customThemeStorageKey = "CUSTOM_THEME_KEY";
 
+const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
+const preferredTheme = () => darkQuery().matches 
+  ? "dark"
+  : "light";
+
 const getThemeModeFromStorageOrPreference = (): ThemeMode | undefined => {
   if (isServer) {
     return undefined;
   }
   const storedTheme = localStorage.getItem(themeModeStorageKey);
   if (storedTheme === "dark" || storedTheme === "light") {
-    document.documentElement.style.colorScheme = storedTheme;
+    if (storedTheme !== preferredTheme()) {
+      document.documentElement.style.colorScheme = storedTheme;
+    } else {
+      localStorage.removeItem(themeModeStorageKey);
+    }
     return storedTheme;
   } else if (storedTheme === "custom") {
     return storedTheme;
   } else {
-    const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches 
-      ? "dark"
-      : "light";
-    document.documentElement.style.colorScheme = preferredTheme;
-    return preferredTheme;
+    return preferredTheme();
   }
 }
 
@@ -31,8 +36,13 @@ const [themeMode, _setThemeMode] = createSignal<ThemeMode | undefined>(
 );
 
 const setThemeMode = (theme: ThemeMode) => {
-  localStorage.setItem(themeModeStorageKey, theme);
-  document.documentElement.style.colorScheme = theme;
+  if (theme === preferredTheme()) {
+    localStorage.removeItem(themeModeStorageKey);
+    document.documentElement.style.colorScheme = "";
+  } else {
+    localStorage.setItem(themeModeStorageKey, theme);
+    document.documentElement.style.colorScheme = theme;
+  }
   _setThemeMode(theme);
 }
 
@@ -137,7 +147,9 @@ const getPalette = () => merge({}, ifDark(lightPalette, darkPalette), basePalett
 
 createEffect(() => {
   document.documentElement.classList.remove("light-themeMode", "dark-themeMode", "custom-themeMode");
-  document.documentElement.classList.add(`${themeMode()}-themeMode`);
+  if (preferredTheme() !== themeMode()) {
+    document.documentElement.classList.add(`${themeMode()}-themeMode`);
+  }
   if (themeMode() === "custom") {
     updateCustomPalette(getCustomPalette());
   } else {
