@@ -18,10 +18,11 @@ const GuardedCustomThemingForm = () => {
   const [primary, setPrimary] = createSignal(color.hexToRgb(customTheme.primary));
   const [secondary, setSecondary] = createSignal(color.hexToRgb(customTheme.secondary));
   const [bgMain, setBgMain] = createSignal(color.hexToRgb(customTheme.bgMain));
-  const [bgCard, setbgCard] = createSignal(color.hexToRgb(customTheme.bgCard));
+  const [bgCard, setBgCard] = createSignal(color.hexToRgb(customTheme.bgCard));
   const [txtMain, setTxtMain] = createSignal(color.hexToRgb(customTheme.txtMain));
   const [txtHeavy, setTxtHeavy] = createSignal(color.hexToRgb(customTheme.txtHeavy));
   const [txtDim, setTxtDim] = createSignal(color.hexToRgb(customTheme.txtDim));
+  const [dark, setDark] = createSignal(customTheme.colorScheme === "dark");
 
   createEffect(() => {
     updateCustomPalette({
@@ -31,7 +32,8 @@ const GuardedCustomThemingForm = () => {
       bgCard: color.rgbToHex(bgCard()),
       txtMain: color.rgbToHex(txtMain()),
       txtHeavy: color.rgbToHex(txtHeavy()),
-      txtDim: color.rgbToHex(txtDim())
+      txtDim: color.rgbToHex(txtDim()),
+      colorScheme: dark() ? "dark" : "light"
     })
   })
 
@@ -47,6 +49,13 @@ const GuardedCustomThemingForm = () => {
         <span>Start using a custom theme</span>
       </label>
       <Show when={themeMode() === "custom"}>
+        <label class={styles.checkboxLabel!}>
+          <input 
+            type="checkbox"
+            checked={dark()}
+            oninput={e => setDark(e.currentTarget.checked)} />
+          <span>My custom theme is more of a "dark" mode</span>
+        </label>
         <section class={styles.cards!}>
           <Card padding>
             <h2>Primary color</h2>
@@ -62,7 +71,7 @@ const GuardedCustomThemingForm = () => {
           </Card>
           <Card padding>
             <h2>Card background color</h2>
-            <ColorPicker color={bgCard()} setColor={setbgCard} />
+            <ColorPicker color={bgCard()} setColor={setBgCard} />
           </Card>
           <Card padding>
             <h2>Main text color</h2>
@@ -74,10 +83,6 @@ const GuardedCustomThemingForm = () => {
           </Card>
           <Card padding>
             <h2>Dim text color</h2>
-            <ColorPicker color={txtHeavy()} setColor={setTxtHeavy} />
-          </Card>
-          <Card padding>
-            <h2>Dim text color</h2>
             <ColorPicker color={txtDim()} setColor={setTxtDim} />
           </Card>
         </section>
@@ -85,9 +90,11 @@ const GuardedCustomThemingForm = () => {
           setPrimary(color.hexToRgb(basePalette.primary));
           setSecondary(color.hexToRgb(basePalette.secondary));
           setBgMain(color.hexToRgb(darkPalette.bgMain));
-          setbgCard(color.hexToRgb(darkPalette.bgCard));
+          setBgCard(color.hexToRgb(darkPalette.bgCard));
           setTxtMain(color.hexToRgb(darkPalette.txtMain));
           setTxtHeavy(color.hexToRgb(darkPalette.txtHeavy));
+          setTxtDim(color.hexToRgb(darkPalette.txtDim));
+          setDark(darkPalette.colorScheme === "dark");
         }}>Clear custom theme back to base dark</Button>
       </Show>
     </>

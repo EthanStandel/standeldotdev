@@ -58,9 +58,10 @@ const palette = {
 
     --palette-primary: var(--primary);
     --palette-secondary: var(--secondary);
+    color-scheme: var(--palette-colorScheme);
 
     @mixin dark {
-      color-scheme: dark;
+      --palette-colorScheme: var(--colorScheme);
       --palette-bgMain: var(--bgMain);
       --palette-bgCard: var(--bgCard);
       --palette-txtMain: var(--txtMain);
@@ -70,7 +71,7 @@ const palette = {
     }
 
     @mixin light {
-      color-scheme: light;
+      --palette-colorScheme: var(--light-colorScheme);
       --palette-bgMain: var(--light-bgMain);
       --palette-bgCard: var(--light-bgCard);
       --palette-txtMain: var(--light-txtMain);
@@ -92,17 +93,6 @@ const palette = {
 
     @media (prefers-color-scheme: light) {
       @include light;
-    }
-
-    &.custom-themeMode {
-      --palette-primary: var(--custom-primary, var(--primary));
-      --palette-secondary: var(--custom-secondary, var(--secondary));
-      --palette-bgMain: var(--custom-bgMain, var(--bgMain));
-      --palette-bgCard: var(--custom-bgCard, var(--bgCard));
-      --palette-txtMain: var(--custom-txtMain, var(--txtMain));
-      --palette-txtHeavy: var(--custom-txtHeavy, var(--txtHeavy));
-      --palette-txtDim: var(--custom-txtDim, var(--txtDim));
-
     }
   }
   body {
