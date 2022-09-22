@@ -7,7 +7,24 @@ type ThemeMode = "light" | "dark" | "custom";
 const themeModeStorageKey = "THEME_MODE_KEY";
 const customThemeStorageKey = "CUSTOM_THEME_KEY";
 
-const darkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
+let _darkQuery: MediaQueryList | undefined;
+const darkQuery = () => {
+  if (!_darkQuery) {
+    _darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    let latestState = _darkQuery.matches;
+    _darkQuery.addEventListener("change", () => {
+      if (_darkQuery!.matches !== latestState) {
+        latestState = _darkQuery!.matches;
+        setThemeMode(
+          darkQuery().matches 
+            ? "dark"
+            : "light"
+        );
+      }
+    })
+  }
+  return _darkQuery;
+}
 const preferredTheme = () => darkQuery().matches 
   ? "dark"
   : "light";
