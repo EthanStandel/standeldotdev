@@ -4,12 +4,14 @@ import Header from "../Header/Header.astro";
 import RouteTransitions from "./RouteTransitions.astro";
 import { darkPalette, lightPalette, basePalette } from "../../utils/theme";
 import "./MarkdownStyles.scss";
+import Comments from "../Comments.astro";
 
 export interface Props {
   title?: string;
   frontmatter?: any;
 }
 
+const isBlogPost = Astro.url.pathname.startsWith("/blog/");
 const title = Astro.props.title ?? Astro.props.frontmatter.title;
 const now = new Date().toUTCString();
 
@@ -44,6 +46,7 @@ const palette = {
     <Header />
     <main id="main">
       <slot />
+      {isBlogPost && <Comments />}
     </main>
     <Footer />
   </body>
