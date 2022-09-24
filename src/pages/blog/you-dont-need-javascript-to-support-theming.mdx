@@ -1,18 +1,18 @@
 ---
 layout: ../../components/Layout/Layout.astro
-title: (WIP) You don't need JavaScript to support theming
+title: You don't need JavaScript to support theming
+description: A quick lesson on how to build websites that theme themselves to the user's preference while using only native browser functionalities
 date: 9.18.22
+categories:
+  - CSS
+  - CSS variables
+  - Media queries
+  - A11y
+  - Interactivity
+  - UX
 ---
 import { Card } from "../../components/Card";
 import ArticleHeading from "../../components/ArticleHeading.astro";
-
-<ArticleHeading 
-  title={frontmatter.title}
-  date={frontmatter.date}
-  readingTime={frontmatter.minutesRead}
->
-  <span slot="tldr">CSS variables & <code>@media (prefers-color-scheme: dark)</code></span>
-</ArticleHeading>
 
 ## CSS variables as theme tokens
 

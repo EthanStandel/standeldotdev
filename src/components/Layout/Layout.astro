@@ -5,6 +5,7 @@ import RouteTransitions from "./RouteTransitions.astro";
 import { darkPalette, lightPalette, basePalette } from "../../utils/theme";
 import "./MarkdownStyles.scss";
 import Comments from "../Comments.astro";
+import ArticleHeading from "../ArticleHeading.astro";
 
 export interface Props {
   title?: string;
@@ -13,6 +14,9 @@ export interface Props {
 
 const isBlogPost = /^\/blog\/([a-zA-Z]|-|\d)+\/?$/.test(Astro.url.pathname);
 const title = Astro.props.title ?? Astro.props.frontmatter.title;
+const { date, minutesRead, categories } = isBlogPost
+  ? Astro.props.frontmatter
+  : { date: "", minutesRead: "", categories: [] };
 const now = new Date().toUTCString();
 
 const prefixedLightPalette = Object.entries(lightPalette).reduce((map, [key, value]) => {
@@ -45,6 +49,14 @@ const palette = {
   <body>
     <Header />
     <main id="main">
+      {isBlogPost && (
+        <ArticleHeading 
+          title={title}
+          date={date}
+          readingTime={minutesRead}
+          categories={categories}
+        />
+      )}
       <slot />
       {isBlogPost && <Comments />}
     </main>

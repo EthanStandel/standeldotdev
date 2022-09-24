@@ -1,0 +1,78 @@
+---
+import CategoryChips from './CategoryChips.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  categories: Array<string>;
+  href: string;
+  date: string;
+}
+
+const { title, description, categories, href, date } = Astro.props;
+---
+<a href={href}>
+  <div class="body-container">
+    <div class="content-container">
+      <h2>{title}</h2>
+      <p>Published {date}</p>
+      <p>{description}</p>
+      <CategoryChips categories={categories} />
+    </div>
+  </div>
+</a>
+<style lang="scss">
+  a {
+    all: unset;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+    border-radius: 2em;
+    margin-bottom: 1em;
+    background: linear-gradient(
+      to right,
+      var(--palette-primary),
+      var(--palette-secondary)
+    );
+    transition: box-shadow .2s ease, transform .2s ease;
+
+    &:hover, &:focus-visible {
+      box-shadow: -6px 0px 4px 0px var(--palette-primary), 6px 0px 4px 0px var(--palette-secondary);
+    }
+
+    &:focus-visible {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(.9);
+    }
+  }
+
+  .body-container {
+    border-radius: calc(2em - 5px);
+    background: var(--palette-bgMain);
+    height: calc(100% - 10px);
+    widtH: calc(100% - 10px);
+    margin-left: 5px;
+    margin-top: 5px;
+  }
+
+  .content-container {
+    padding: 1em;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    color: var(--palette-txtDim);
+    margin: 0;
+    margin-top: .5em;
+
+    &:last-of-type {
+      margin-bottom: .5em;
+    }
+  }
+</style>

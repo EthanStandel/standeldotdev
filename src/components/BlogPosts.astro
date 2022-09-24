@@ -1,17 +1,22 @@
 ---
-import Link from "./Link.astro";
+import BlogCard from "./BlogCard.astro";
 
 const posts = (await Astro.glob("../pages/blog/*.mdx"))
   .filter((post) => 
     !post.frontmatter.draft && !post.file.endsWith("/index.mdx")
+  ).sort((a, b) => 
+    new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime()
   );
 ---
 <ul class="post">
   {posts.map(post => (
     <li>
-      <Link href={post.url!}>
-        {post.frontmatter.title + " →"}
-      </Link>
+      <BlogCard 
+        href={post.url!}
+        title={post.frontmatter.title}
+        description={post.frontmatter.description}
+        date={post.frontmatter.date}
+        categories={post.frontmatter.categories} />
     </li>
   ))}
 </ul>
@@ -23,10 +28,6 @@ const posts = (await Astro.glob("../pages/blog/*.mdx"))
     display: flex;
     &::marker {
       display: none;
-    }
-    &::before{
-      content: "•";
-      margin-right: 1.5em;
     }
     &:not(:last-child) {
       margin-bottom: .5em;

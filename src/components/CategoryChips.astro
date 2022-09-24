@@ -1,0 +1,36 @@
+---
+export interface Props {
+  categories: Array<string>;
+}
+
+const { categories } = Astro.props;
+---
+<div class="categories">
+  {categories.map(category => (
+    <span class="category">
+      <h5>{category}</h5>
+    </span>
+  ))}
+</div>
+<style lang="scss">
+  .categories {
+    display: flex;
+    gap: .5em;
+    flex-wrap: wrap;
+  }
+
+  .category {
+    color: var(--palette-txtHeavy);
+    background: var(--palette-bgCard);
+    border-radius: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  h5 {
+      margin-block-start: 0;
+      margin-block-end: 0;
+      display: inline;
+      line-height: 2;
+    }
+</style>
