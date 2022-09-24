@@ -1,0 +1,150 @@
+---
+layout: ../../components/Layout/Layout.astro
+title: "(WIP) FAQ: What is TypeScript & why should I use it?"
+date: 9.22.22
+---
+import { Card } from "../../components/Card";
+import ArticleHeading from "../../components/ArticleHeading.astro";
+
+<ArticleHeading 
+  title={frontmatter.title}
+  date={frontmatter.date}
+  readingTime={frontmatter.minutesRead}
+>
+  <a slot="tldr" href="https://www.typescriptlang.org/">
+    <span>typescriptlang.org</span>
+  </a>
+</ArticleHeading>
+
+This article is not meant to break any new ground, it's just meant to answer the title question.
+I'm writing this because I've answered this question for dozens of people before and so I think I've developed a good & well detailed answer.
+I have also seen a lot of answers that I feel fail to explain TypeScript to the type of developer who is usually asking this question.
+So if you are a JavaScript developer, who hasn't worked outside of JavaScript or has only worked with dynamically typed languages, then this post is for you!
+
+## What is TypeScript?
+
+TypeScript is a superset of JavaScript, which is to say that all JavaScript can be considered valid TypeScript.
+TypeScript itself compiles back down to JavaScript and adds no behavior to your code at runtime.
+What it does add is a compiler that scans your code and identifies potential bugs.
+Here's some TypeScript code that declares a `string` with the reference identifier `hello`.
+
+<Card withCopy client:idle>
+```ts
+let hello = "world";
+```
+</Card>
+
+Looks pretty familiar, right?
+Even though you often don't need to, TypeScript gives you the ability to make type declarations.
+In this example, `hello` is declaratively identified as type `string`.
+
+<Card withCopy client:idle>
+```ts
+let hello: string = "world";
+```
+</Card>
+
+This piece of code acts exactly the same as the previous example, because the type `string` was [_inferred_](https://www.typescriptlang.org/docs/handbook/type-inference.html) by the value that was assigned to `hello`.
+
+The advantage you get from TypeScript is that if you use `hello` in a way that you couldn't use a `string`, then you will likely see in your editor if you've made a mistake.
+So for instance, if you think `hello` is an object and you try to access arbitrary properties off of it, then you will get a little red squiggly under that code. If you hover over it you'll get an error message describing what is wrong with that code.
+
+<Card withCopy client:idle>
+```ts
+hello.somePropertyThatStringsDontHave;
+   // ^ TS Error: Property 'somePropertyThatStringsDontHave' does not exist on type 'string'.
+```
+</Card>
+
+TypeScript will also permanently recognize that your variable is the type you've declared or that it has inferred.
+So later in your code, if you were to assign that variable like this, then you'd get an error.
+
+<Card withCopy client:idle>
+```ts
+hello = 123;
+// ^ TS Error: Type 'number' is not assignable to type 'string'.
+```
+</Card>
+
+But what if you did want `hello` to be able to be a `string` sometimes and also a `number` other times.
+JavaScript lets you do that, so why should TypeScript hold you back?
+TypeScript will actually let you do this!
+But in cases like that, you have to _declare_ the type you want `hello` to be, if the type that would be _inferred_ from the initial assignment doesn't tell the full story.
+
+<Card withCopy client:idle>
+```ts
+let hello: string | number = "world";
+```
+</Card>
+
+Now you can reassign `hello` to a `number` or a `string` as the `|` (pipe) in the type declaration says that your value can be `this or that`.
+But you will have to be careful, because the TypeScript compiler will now limit how you use that variable.
+For instance, if you wanted to perform a `slice` operation on `hello` as you know you could with a `string`, TypeScript won't let you.
+
+<Card withCopy client:idle>
+```ts
+hello.slice(-1);
+   // ^ TS Error: Property 'slice' does not exist on type 'string | number'. Property 'slice' does not exist on type 'number'.
+```
+</Card>
+
+That warning may seem annoying. You're pretty sure `hello` is a `string` here!
+But TypeScript is protecting you from yourself.
+When the compiler yells at you, just listen to it.
+You should correct that code to this.
+
+<Card withCopy client:idle>
+```ts
+if (typeof hello === "string") {
+  // TypeScript now knows hello is a string in this block
+  hello.slice(-1);
+} else {
+  // And it knows that hello is a number in this block
+}
+```
+</Card>
+
+Even though TypeScript doesn't actually add any runtime logic or syntax to JavaScript code, it can interpret JavaScript code and infer types.
+So this syntax, `typeof hello`, is actually a runtime JavaScript operation that returns a `string` of value `"undefined"`, `"object"`, `"boolean"`, `"number"`, `"bigint"`, `"string"`, `"symbol"`, or `"function"`.
+Forcing TypeScript to identify types in more depth than these primitives can get more tricky, but this post is only intending to go over some of the basic concepts.
+
+## Why is TypeScript important?
+
+If you make mistakes with types, your code will also fail to compile.
+This is TypeScript _not letting you_ make some of the most common mistakes that developers make.
+Without TypeScript, you're left to discover these bugs at run-time as opposed to compile time.
+Discovering bugs at run time also means that it may be your users finding your bugs, rather than you. 
+
+It also makes pulling in new libraries or using new DOM APIs much less intimidating.
+
+<Card withCopy client:idle>
+```ts
+import React from "react";
+
+React.
+   // ^ suggestions will appear here in your editor
+```
+</Card>
+
+Once you hit `.` on this block of code, you'll get a series of suggested actions & properties you can use in `React` in this example.
+
+If you are a JavaScript developer and you say, "well my editor already does this sometimes!"
+That's because the libraries that you are using are exporting their TypeScript types and your editor is using them automatically to help you with your JavaScript.
+And then it will also help you with any types that it deems "statically analyzable" (these are the types that TypeScript would infer for you).
+But if you _actually use TypeScript_, you can get these advantages __all the time.__
+For instance, there's no way to tell the intended type for arguments of a function in JavaScript because they're not instantiated. But you can strongly type function arguments in TypeScript!
+
+## When should I use TypeScript instead of JavaScript?
+
+You should use TypeScript in every project that you intend to work on and update regularly and deploy to users.
+It is invaluable even if you are the only developer as it will help you understand your past intentions with code.
+It's more important than tests & does a lot of what tests do, but faster and with less work on your part.
+It provides the most basic level of application stability with its compile step.
+
+## Conclusions
+
+I know that a lot of developers start playing with TypeScript and find it annoying or nagging, like an overbearing parent.
+But like an overbearing parent, TypeScript really does know what's best for you and it's only trying to help.
+When it nags, you should listen.
+There are several tricks you can use to override TypeScript's safety (that I refuse to give away in this post), which you will eventually need.
+However, as a default, you should try to teach yourself to understand the errors as they're given to you, and that will make you a better developer.
