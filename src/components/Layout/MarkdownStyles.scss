@@ -72,6 +72,10 @@ h1 {
   text-align: center;
 }
 
+pre {
+  min-height: 2em;
+}
+
 p code, details code {
   background: var(--palette-bgCard);
   padding: 4px;
