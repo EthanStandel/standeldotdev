@@ -11,7 +11,7 @@ export interface Props {
   frontmatter?: any;
 }
 
-const isBlogPost = /^\/blog\/([a-zA-Z]|-|\d)+$/.test(Astro.url.pathname);
+const isBlogPost = /^\/blog\/([a-zA-Z]|-|\d)+\/?$/.test(Astro.url.pathname);
 const title = Astro.props.title ?? Astro.props.frontmatter.title;
 const now = new Date().toUTCString();
 
