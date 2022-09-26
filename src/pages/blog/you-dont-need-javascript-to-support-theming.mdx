@@ -60,6 +60,10 @@ html {
   html {
     --palette-background: #20201c;
     --palette-text: #eeeeee;
+    // this will give you dark scroll-bars on MacOS & Windows
+    // and fix default text colors (including visited/unvisited anchor tags)
+    // to have a better contrast against dark backgrounds
+    color-scheme: dark;
   }
 }
 
@@ -71,11 +75,11 @@ html, body {
 </Card>
 
 And that's basically it, with that, you can get a site that, without any JavaScript, themes itself according to the user's system theme and falls back to a light theme as a default.
-If your site or brand aligns more with a dark theme by default then you also can have the dark styles on the default and use `@media (prefers-color-scheme: light`.
+If your site or brand aligns more with a dark theme by default then you also can have the dark styles on the default and use `@media (prefers-color-scheme: light)`.
 However, that will only affect a small portion of users whose devices don't yet identify theming, which Windows, MacOS, Android, and iOS have all done for a few years now.
 
 ![This site for example](/you-dont-need-javascript-to-support-theming.gif)
-_Fig 1. This site dynamically adapting to system theme after JavaScript has been disabled._
+_Fig 1. A beta version of this site dynamically adapting to system theme after JavaScript has been disabled._
 
 ## Conclusions
 

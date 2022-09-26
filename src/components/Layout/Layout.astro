@@ -14,9 +14,9 @@ export interface Props {
 
 const isBlogPost = /^\/blog\/([a-zA-Z]|-|\d)+\/?$/.test(Astro.url.pathname);
 const title = Astro.props.title ?? Astro.props.frontmatter.title;
-const { date, minutesRead, categories } = isBlogPost
+const { date, minutesRead, categories, updated } = isBlogPost
   ? Astro.props.frontmatter
-  : { date: "", minutesRead: "", categories: [] };
+  : { date: "", minutesRead: "", categories: [], updated: undefined };
 const now = new Date().toUTCString();
 
 const prefixedLightPalette = Object.entries(lightPalette).reduce((map, [key, value]) => {
@@ -53,6 +53,7 @@ const palette = {
         <ArticleHeading 
           title={title}
           date={date}
+          updated={updated}
           readingTime={minutesRead}
           categories={categories}
         />

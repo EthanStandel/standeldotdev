@@ -5,17 +5,18 @@ export interface Props {
   title: string;
   description: string;
   categories: Array<string>;
+  updated?: string;
   href: string;
   date: string;
 }
 
-const { title, description, categories, href, date } = Astro.props;
+const { title, description, categories, href, date, updated } = Astro.props;
 ---
 <a href={href}>
   <div class="body-container">
     <div class="content-container">
       <h2>{title}</h2>
-      <p>Published {date}</p>
+      <p>Published {date} {updated && `// Updated ${updated}`}</p>
       <p>{description}</p>
       <CategoryChips categories={categories} />
     </div>

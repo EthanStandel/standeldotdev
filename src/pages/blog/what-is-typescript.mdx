@@ -3,6 +3,7 @@ layout: ../../components/Layout/Layout.astro
 title: What is TypeScript & why should I use it?
 description: A short primer on TypeScript targeted at JavaScript devs.
 date: 9.22.22
+updated: 9.26.22
 categories:
   - FAQ
   - TypeScript
@@ -40,7 +41,7 @@ let hello: string = "world";
 ```
 </Card>
 
-This piece of code acts exactly the same as the previous example, because the type `string` was [_inferred_](https://www.typescriptlang.org/docs/handbook/type-inference.html) by the value that was assigned to `hello`.
+This piece of code acts exactly the same as the previous example, because the type `string` was [_inferred_](https://www.typescriptlang.org/docs/handbook/type-inference.html) by the value that was assigned to `hello`. So why would we use that syntax if it doesn't add anything? We'll get there.
 
 The advantage you get from TypeScript is that if you use `hello` in a way that you couldn't use a `string`, then you will likely see in your editor if you've made a mistake.
 So for instance, if you think `hello` is an object and you try to access arbitrary properties off of it, then you will get a little red squiggly under that code. If you hover over it you'll get an error message describing what is wrong with that code.
@@ -66,6 +67,7 @@ But what if you did want `hello` to be able to be a `string` sometimes and also 
 JavaScript lets you do that, so why should TypeScript hold you back?
 TypeScript will actually let you do this!
 But in cases like that, you have to _declare_ the type you want `hello` to be, if the type that would be _inferred_ from the initial assignment doesn't tell the full story.
+I told you we'd get there.
 
 <Card withCopy client:idle>
 ```ts
@@ -144,3 +146,84 @@ But like an overbearing parent, TypeScript really does know what's best for you 
 When it nags, you should listen.
 There are several tricks you can use to override TypeScript's safety (that I refuse to give away in this post), which you will eventually need.
 However, as a default, you should try to teach yourself to understand the errors as they're given to you, and that will make you a better developer.
+
+## Update
+
+I got more pushback on this article than I expected.
+I just wanted to address some of the arguments that were made by seasoned JavaScript developers who are still hostile to TypeScript.
+
+### I don't want to have to add a build pipeline
+
+If you're not already using a build pipeline, then you should consider doing so.
+If you're just deploying hand written code, then you're sending your users far bigger JavaScript bundles then you need to.
+At the very least, you should be uglifying & minifying your code.
+There is far more value to be gained in having a build pipeline & true production builds than just TypeScript, but it does fit nicely into most existing pipelines.
+
+And if it's the compile time you're worried about; using modern tooling like [esbuild](https://esbuild.github.io/), [Vite](https://vitejs.dev/), [Snowpack](https://www.snowpack.dev/), or [SWC](https://swc.rs/docs/getting-started), gives you compile & bundle times that are imperceivably fast _with or without_ TypeScript (like under 1/2 second __total__).
+The stability provided is definitely worth fractions of fractions of a second.
+
+### Setting it up is annoying
+
+If you're building a web app, then the de-facto project scaffolding tools for all major frameworks support TypeScript out of the box at no extra effort: React (Vite, create-react-app), Next (SWC/custom-CLI), Vue/Nuxt (Vite), Svelte/SvelteKit (Vite), SolidJS/solid-start (Vite), or Angular (ESBuild/custom-CLI).
+
+If you're building an app in Node, in a lot of cases you can just use [ts-node](https://www.npmjs.com/package/ts-node) pretty safely.
+If you're just running on a server, then `ts-node` has an incredibly negligible compilation time at initial startup.
+If you're building out to something like Lambda services, then it'll be a little more tricky; but properly scaling that kind of deployment is a pain with or without TypeScript.
+
+### You can just do this with JSDoc
+
+The JSDoc syntax is both far less powerful/reusable/sharable than TypeScript, but it's also far more verbose.
+For those who don't like TS due to it's verbosity, I doubt that this
+
+<Card withCopy client:idle>
+```js
+/**
+ * @typedef {Object} Party
+ * @property {object} defaults
+ * @property {number} defaults.players
+ * @property {string} defaults.level
+ * @property {object} defaults.treasure
+ * @property {number} defaults.treasure.gold
+ */
+
+/** 
+ * @param {Party} config
+ */
+const getPartyGold = (config) => {
+  return config.defaults.treasure.gold;
+}
+```
+</Card>
+
+could possibly be a preferred solution over this.
+
+<Card withCopy client:idle>
+```ts
+type Party = {
+  defaults: {
+    players: number;
+    level: string;
+    treasure: {
+      gold: number;
+    }
+  }
+};
+
+const getPartyGold = (config: Party) => {
+  return config.defaults.treasure.gold;
+}
+```
+</Card>
+
+Alongside that point, I cannot be clear enough about this: __TypeScript is not just autocomplete.__
+It's meant to be a validating step in your build process to prevent bad code from making its way through the pipeline by any developer, even if they want to write all their code in Notepad.
+Unless you add a build step that is validating your JSDoc comments to be accurate, then you're not actually getting anywhere near the same levels of protection.
+
+
+### It just slows me down when I'm building things
+
+If TypeScript is giving you a lot of grief, it could be a code-smell to how you're managing data in your applications.
+Generally, outside of function arguments and API request & response bodies, there shouldn't be too much manual typing required in applications using TypeScript.
+
+I can confirm that providing strict typing in a very [generic-driven library can be hard & messy](https://github.com/EthanStandel/preact-signal-store/blob/main/src/deepSignal.ts#L16).
+But because that library is meant for others to use, there's no way I wouldn't put types there, because they are needed to help the dependent developer understand how the data is managed, and the types can protect against [certain potential footguns](https://github.com/EthanStandel/preact-signal-store#typescript-support).

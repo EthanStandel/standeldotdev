@@ -16,6 +16,7 @@ const posts = (await Astro.glob("../pages/blog/*.mdx"))
         title={post.frontmatter.title}
         description={post.frontmatter.description}
         date={post.frontmatter.date}
+        updated={post.frontmatter.updated}
         categories={post.frontmatter.categories} />
     </li>
   ))}
