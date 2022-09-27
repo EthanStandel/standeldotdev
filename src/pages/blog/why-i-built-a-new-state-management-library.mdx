@@ -30,7 +30,7 @@ import ArticleHeading from "../../components/ArticleHeading.astro";
 I know because that's my reaction when I hear something like this, so I get it.
 But it's not like that, I swear. I was filling a gap in the market.
 
-## The setup
+## The introduction of the Preact `Signal` primitive
 
 In early September, the Preact team made the [announcement](https://preactjs.com/blog/introducing-signals/) that they were officially releasing a new state primitive.
 
@@ -70,7 +70,7 @@ Instead of binding direct values into the DOM that must be recalculated & reconc
 import { useSignal } from "@preact/signals";
 
 const Counter = () => {
-  const count = useSignal();
+  const count = useSignal(0);
   console.log("Counter rendered")
 
   return (
@@ -90,8 +90,36 @@ But what's bound as the children of the `div` is not the value, but the signal i
 The advantage this gives you against traditional React & Preact code is that no matter how many times you click the button to update that state, `Counter rendered` will only log once because the signal is bound to the DOM and the component isn't listening to it.
 
 This makes state updates far more performant and scale much better because they get to skip VDOM construction, diffing, and reconciliation.
-And if you are in a situation where you need the signal to act more like a VDOM (maybe a dependency expects full VDOM updates on state changes), then if you bind the value of a signal into the VDOM then that component will subscribe to the signal just like `useState`!
+And if you are in a situation where you need the signal to act more like a VDOM, then if you bind the `value` of a signal into the VDOM then that component will subscribe to the signal just like `useState`!
 So it also has fallback behavior to continue to support the React ecosystem in full.
+
+<Card withCopy client:idle>
+```tsx
+import { Input, Button } from "@mui/material";
+import { signal } from "@preact/signals";
+
+const field = signal("");
+
+const Form = () => {
+  const onSubmit = (e: Event) => {
+    e.preventDefault();
+    alert(`Submitted value: ${field.peek()}`);
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <Input value={field.value} onInput={e => field.value = e.target.value} />
+      <Button type="submit">Submit</Button>
+    </form>
+  );
+}
+```
+</Card>
+
+In the code above, for example, the `@mui/material` package is built for React but is fully compatible with Preact applications.
+Because this is a React package, it expects that the way data is managed around it follows a VDOM model.
+By binding `input.value` to the `value` prop in the `<Input />` component, the whole `Form` component is now subscribed to changes to the `input` signal, as if it were a regular `useState`.
+So when the `onInput` event (which is equivalent to React's `onChange` event) fires, `Form` will rerun like a traditional VDOM driven component.
 
 So Preact made a faster state container which is cool, but it actually gets better than that.
 The signal primitive isn't inherently stuck in components like `useState`.
@@ -127,7 +155,7 @@ They were trying to encourage developers to only have to rely on the data that t
 ## Initial implementation
 
 It seemed like nobody had really jumped on this yet, so I took the opportunity! My initial mental model was very simplistic.
-There would be two functions `store` and `destore` (a name I later got rightfully criticized for). The `store` function would take in an object and convert all of its deeply nested atomic values into signals. So very simply this code...
+There would be two functions `store` and `destore`. The `store` function would take in an object and convert all of its deeply nested atomic values into signals. So very simply this code...
 
 <Card withCopy client:idle>
 ```tsx
@@ -149,7 +177,7 @@ was equivalent to this code...
 ```tsx
 import { signal } from "@preact/signals";
 
-const appStore = {
+const userStore = {
   name: {
     first: signal("Thor"),
     last: signal("Odinson")
@@ -165,7 +193,7 @@ and this code...
 ```tsx
 import { destore, store } from "preact-signal-store";
 
-const appStore = destore(
+const userStore = destore(
   store({
     name: {
       first: "Thor",
@@ -181,7 +209,7 @@ is equivalent to this code...
 
 <Card withCopy client:idle>
 ```tsx
-const appStore = {
+const userStore = {
   name: {
     first: "Thor",
     last: "Odinson"
@@ -194,7 +222,7 @@ const appStore = {
 So what I had created was a method of going into an object and finding every atomic property and turning it into a signal, as well as the ability to turn all of those signals back into their underlying values.
 But this, to me, still felt more like a valuable utility than a full state management system.
 
-## A new primitive for substate
+## A new primitive _for substate_
 
 After some criticism of language & titles in the library from another developer, the idea came to me that I could essentially give these "stores" the same API as signals already offer.
 I had all the tools available, but I just had to place them into a sensible object model.
@@ -337,7 +365,7 @@ Although people are accustomed to hooks and like them for many valid reasons, I 
 ## Conclusions
 
 For anyone who has the initial reaction described in the beginning of this post, I hope that the reasons I've provided give some form of clarity as to why I decided to make a state management library.
-I hope the performance & developer experience gains justify its existance even if it is for niche set of developers who are using Preact for Preact and not just as better React.
+I hope the performance & developer experience gains justify its existence even if it is for a niche set of developers who are using Preact for Preact and not just as better React.
 
 For more information on the `preact-signal-store` library, go checkout [the docs](https://www.npmjs.com/package/preact-signal-store) and please give it a shot and see what you think! And if you feel that there's a use-case that's missing, I'd love to consider expanding to meet more needs, so please [file an issue](https://github.com/EthanStandel/preact-signal-store/issues)!
 And if you end up using the package and liking it, I'd be so appreciative if you would [slap a star on the repo](https://github.com/EthanStandel/preact-signal-store/stargazers)!
