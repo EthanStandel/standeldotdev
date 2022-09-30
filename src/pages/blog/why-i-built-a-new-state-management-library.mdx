@@ -3,6 +3,7 @@ layout: ../../components/Layout/Layout.astro
 title: Why I built a new state management library
 description: A reflexively self-defensive description & reasoning behind my niche new library
 date: 9.15.22
+updated: 9.30.22
 categories:
   - Preact
   - React
@@ -30,25 +31,25 @@ import ArticleHeading from "../../components/ArticleHeading.astro";
 I know because that's my reaction when I hear something like this, so I get it.
 But it's not like that, I swear. I was filling a gap in the market.
 
-## The introduction of the Preact `Signal` primitive
+## The introduction of the Preact Signal primitive
 
 In early September, the Preact team made the [announcement](https://preactjs.com/blog/introducing-signals/) that they were officially releasing a new state primitive.
 
 <Card padding>
-  <details>
-    <summary>
-      #### Wait, what's Preact again?
-    </summary>
-    Preact is a library that is designed to be a faster _implementation_ of React.
-    It fulfills all the same APIs as are exposed by React but in a more lightweight fashion.
+<details>
+<summary>
+  #### Wait, what's Preact again?
+</summary>
+Preact is a library that is designed to be a faster _implementation_ of React.
+It fulfills all the same core APIs as are exposed by React but in a more lightweight fashion.
 
-    Because this is the web, one of the first things you should do to get faster is get smaller.
-    The `preact` package currently claims to bundle down to only 3kb of JS to function, whereas `react` + `react-dom` requires upwards of 100kb.
-    Where React is built to be deployed with any of several rendering engines, most notably react-dom & react-native, Preact is just built for the web and that allows it to optimize strictly for that task.
+Because this is the web, one of the first things you should do to get faster is get smaller.
+The `preact` package currently claims to bundle down to only 3kb of JS to function, whereas `react` + `react-dom` requires upwards of 100kb.
+Where React is built to be deployed with any of several rendering engines, most notably `react-dom` & `react-native` (and more recently `@react-three/fiber`), Preact is just built for the web and that allows it to optimize strictly for that task.
 
-    It's worth noting however that Preact has always had several projects associated with it that are outside of the bounds of just being "P(erformant) React."
-    However, its decision to closely support the React ecosystem has allowed it to grow to be one of the most popular modern frameworks at about 1.5 million installs weekly, at the time of this writing.
-  </details>
+It's worth noting however that Preact has always had several projects associated with it that are outside of the bounds of just being "P(erformant) React."
+However, its decision to closely support the React ecosystem has allowed it to grow to be one of the most popular modern frameworks at about 1.5 million installs weekly, at the time of this writing.
+</details>
 </Card>
 
 The new state primitive that they were supporting for both Preact & React is the "signal" model.
@@ -247,7 +248,7 @@ is equivalent to this code...
 
 <Card withCopy client:idle>
 ```tsx
-import { signal } from "@preact/signals";
+import { signal, batch } from "@preact/signals";
 
 const userStore = {
   name: {
