@@ -238,8 +238,13 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
         ul.history-details {
           list-style-image: var(--check);
 
-          li::marker {
-            font-size: 1.5em;
+          li{
+            margin-top: .5em;
+            &::marker {
+              font-size: 1.5em;
+              // all other browsers plus Chromium printout act like this is the default
+              line-height: 0;
+            }
           }
         }
 
