@@ -19,6 +19,12 @@ categories:
 import { Card } from "../../components/Card";
 import ArticleHeading from "../../components/ArticleHeading.astro";
 
+## Update!
+
+Since writing this article, I made the decision to rename and expand the library. The library described in this article was previously called `preact-signal-store` and it worked in Preact applications only. However, the Preact team had supported React applications from the initial release of their signal primitive, using a monorepo model of three packages. They had `@preact/signals-core` where the logic that defined signals and their core features lived, `@preact/signals` which had the rendering logic and custom hooks specifically for Preact applications, and they had `@preact-/signals-react` which had the rendering logic and custom hooks specifically for React applications.
+
+When I first built `preact-signal-store`, I only intended to support Preact applications with it, and so my library relied on `@preact/signals` and exported a Preact specific hook. However, the first project that listed my library as a dependency on GitHub was a _React_ project, and I really didn't like the idea of letting them down, so I decided to follow the pattern set by the Preact team. Initially, I thought I would make the original package name into an NPM scope. However, since the 2.0 release of `preact-signal-store`, the name didn't fit it well. So I decided to make the scope name `@deepsignal`, with underlying packages `@deepsignal/core`, `@deepsignal/preact`, and `@deepsignal/react`!
+
 ## Okay, I know what you're thinking...
 
 > Why another state management library?
