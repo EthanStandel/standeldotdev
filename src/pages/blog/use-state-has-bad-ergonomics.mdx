@@ -27,7 +27,7 @@ const [value, setValue] = useState(0);
 ```
 </Card>
 
-The implication of having the value and it's setter always being separate would be that there would be value in utilizing these things separately. On the contrary, that's actually antithetical to the concept of `useState` and what it is meant to represent. You will always need the value and you will always need the setter. If you don't need the setter, then what you have is probably a derived state that should be calculated based on other pieces of state or props. If you don't need the value then what you have probably isn't really even _state._
+The implication of having the value and it's setter always being separate would be that there would be utility in utilizing these things separately. On the contrary, that's actually antithetical to the concept of `useState` and what it is meant to represent. You will always need the value and you will always need the setter. If you don't need the setter, then what you have is probably a derived state that should be calculated based on other pieces of state or props. If you don't need the value then what you have probably isn't really even _state._
 
 The tuple API decision inherently leaves it up to the React developer to manage the verbosity of referencing the state's name twice. Because the state and setter are two different things, it makes the process of defining a piece of state more verbose, and it makes the process of passing state downward into the tree more verbose. This isn't a big deal with small components, but when you have a component that requires several pieces of state, it leads to code that looks so ugly that we reflexively think that we have done something wrong in our code.
 
@@ -58,7 +58,7 @@ As it turns out, the problems from this decision aren't just aesthetic. The conc
 
 <Card withCopy client:idle>
 ```tsx
-const ContactForm = () => {
+const Timer = () => {
   const [timer, setTimer] = useState(0);
 
   useEffect(() => {
@@ -113,7 +113,7 @@ So the functional setter fix solves the problem, right? Sort of. But then the qu
 
 <Card withCopy client:idle>
 ```tsx
-const Timter = () => {
+const Timer = () => {
   const [timer, setTimer] = useState(0);
   const [timerMultiplier, setTimerMultiplier] = useState(1);
 
