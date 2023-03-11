@@ -11,6 +11,7 @@ categories:
 ---
 
 import { Card } from "../../components/Card";
+import Tweet from "../../components/Tweet.astro";
 
 ## Why do I feel like I'm the only person complaining about this?
 
@@ -18,7 +19,7 @@ React's `useEffect` hook gets all the hate. It's covered in footguns and edge ca
 
 ## Ugly developer ergonomics
 
-The first oddity is the aesthetic choice to return a the `[value, setValue]` tuple.
+The first oddity is the aesthetic choice to return the `[value, setValue]` tuple.
 
 <Card withCopy client:idle>
 ```ts
@@ -53,7 +54,7 @@ const ContactForm = () => {
 
 ## The stale state problem
 
-As it turns out, the problems from this decision aren't just aesthetic. The concept of [stale state](https://reactjs.org/docs/hooks-faq.html#why-am-i-seeing-stale-props-or-state-inside-my-function) is one of the most common footguns in React. It often gets blamed on the challenging API of `useEffect`, but I would argue that it is the model of `useState` that is the root cause of this problem.
+As it turns out, the problems from this decision aren't just aesthetic. The concept of [stale state](https://reactjs.org/docs/hooks-faq.html#why-am-i-seeing-stale-props-or-state-inside-my-function) is one of the most common footguns in React. It often gets blamed on the challenging API of `useEffect`, but I would argue that it is the model of `useState` that is the root cause of this problem. Let's take a look at a simple common mistake for an example.
 
 <Card withCopy client:idle>
 ```tsx
@@ -92,9 +93,6 @@ useEffect(() => {
 <div style={{ textAlign: "center" }}>
   The dependency array fix
 </div>
-</Card>
-
-<Card withCopy client:idle>
 ```tsx
 useEffect(() => {
   const interval = setInterval(() => {
@@ -111,7 +109,7 @@ useEffect(() => {
 
 In many cases where we're using `useEffect`, the recommendation would be to keep the effect handler up to date with the current state by using what I've labeled here as the dependency array fix. However, in this case we would be losing the cadence of `setInterval` which should be giving us an event every second. If we're constantly updating the `useEffect` handler, we're going to be constantly clearing and setting the interval, which will give us a much less accurate timer.
 
-So the functional setter fix solves the problem, right? Sort of. But then the question becomes: What if we need multiple pieces of state? We can still use the functional setter method but it becomes a little bit of a mess.
+So the functional setter fix solves the problem, right? Sort of. But then the question becomes: What if we need multiple pieces of state? We can still use the functional setter method but it becomes a bit of a hot mess.
 
 <Card withCopy client:idle>
 ```tsx
@@ -191,7 +189,7 @@ As you can see, `useErgoState` returns a (stable) function that can both be call
 
 Since the advent of hooks, the dependency array has been meant to hold any non-stable values that your effect might be utilizing. This means almost anything that comes from state and anything that comes from props that isn't a ref or state setter. And this also means that your `useEffect` callback will refire when any of these values change and there is a new render. However, there are some times where you only need to run your effect in the case of certain property changes and other pieces of state that are used in the effect don't necessarily need to trigger a rerun.
 
-React's solution to this would be to reccomend that you [declare this logic separately using `useEffectEvent`](https://beta.reactjs.org/learn/separating-events-from-effects#declaring-an-effect-event) (similar to `useEvent`). But the mental model for what separates out "event" logic from stateful "effect" logic is a bit superficial and it's not always clear what should be in the dependency array and what should be in the effect-event handler. If we take this example from the React docs, it seems hard to say that the actions in `onConnected` are not actually "effects" from the chatroom connection updating.
+React's proposed upcoming solution to this would be to reccomend that you [declare this logic separately using `useEffectEvent`](https://beta.reactjs.org/learn/separating-events-from-effects#declaring-an-effect-event) (similar implementation to `useEvent`). But the mental model for what separates out "event" logic from stateful "effect" logic is a bit superficial and it's not always clear what should be in the dependency array and what should be in the `useEffectEvent` handler. If we take this example from the React docs, it seems hard to say that the actions in `onConnected` are actually "events" separate from the chatroom connection updating.
 
 <Card withCopy client:idle>
 ```tsx
@@ -237,23 +235,48 @@ With `useErgoState`, we no longer have to make this strange distinction between 
 
 ## Downsides & footguns of useErgoState
 
-I genuinely think this solution is better than the current primitive state API from React. However, it's not without it's own challenges and footguns. The biggest one is that it's easy to forget to call the function returned from `useErgoState` to get the latest value. I think using TypeScript will generally help you avoid this error, but it will still trip you up to change your default mindset of "state is a value" to "state is a function that returns a value." However, SolidJS uses a very similar model for it's core state primitive, `createSignal`, and their community has not has been happy with this API.
+I genuinely think this solution is better than the current primitive state API from React. However, it's not without it's own challenges and footguns. The biggest one is that it's easy to forget to call the function returned from `useErgoState` to get the latest value. I think using TypeScript will generally help you avoid this error, but it will still trip you up to change your default mindset of "state is a value" to "state is a function that returns a value." However, SolidJS uses a very similar model for it's core state primitive, `createSignal`, and their community has been happy with this API.
 
 Next, there is a smaller known issue with `useErgoState` when a developer wants to purposefully set the state to `undefined`. Because `useErgoState` returns a function that acts as the state getter when nothing is passed in, passing `undefined` to the function will fulfill the same behavior: just passing back the existing state without any updates. This issue has two potential remedies. The first option is that you can just use `null` rather than `undefined` to represent nil values. The second potential remedy is that the function returned from `useErgoState` still able to accept a state-setter function just like React. So you can set `someState` to `undefined` by writing `someState(() => undefined)`.
 
-Finally, a lot of the problems with stale state references would still be a problem if state worked as a reference because props are treated the same way. So although `useErgoState` can solve the stale state problem with state itself, you'll still have to be careful about stale props. The only recommendation I could give is to have components accept instances of `{ type MutableStateRef } from "use-ergo-state"` (the type that `useErgoState` returns) instead of the actual value itself. This way, you can be sure that the component can always access the latest value of a prop as the prop itself is just a reference. This solution, I realized, is definitely a harder sell as it more aggresively changes the way we think about writing React applications. So maybe a more realistic solution is a combination of the new way and the old ways. It's not like we could ever truly eliminates _values_ from our code, but I think we could do more to avoid them.
+Finally, a lot of the problems with stale state references would still be a problem if state worked as a reference because props are treated the same way. So although `useErgoState` can solve the stale state problem with state itself, you'll still have to be careful about stale props. The only recommendation I could give is to have components accept instances of `{ type MutableStateRef } from "use-ergo-state"` (the type that `useErgoState` returns) instead of the actual value itself. This way, you can be sure that the component can always access the latest value of a prop as the prop itself is just a reference. This solution, I realize, is definitely a harder sell as it more aggresively changes the way we think about writing React applications. So maybe a more realistic solution is a combination of the new way and the old ways. It's not like we could ever truly eliminates _values_ from our code, but I think we could do more to avoid them.
 
 ## Conclusions
 
+With all the issues I've brought to the table, I think it's worth considering if the current model for `useState` is worth holding on to with the risks complexities, and performance detriments it introduces. It seems like a lot of the brain power on the React team is going towards monkeypatching around the performance & scalability limitations caused by constantly stale state. Alongside that, the tuple API has always read awkward and verbose to me. I would love to hear people's thoughts on this subject, and if you have any real world examples where the current API has worked for you in a way that a ref-based API just wouldn't. I would appreciate it if you would try out [the use-ergo-state package](https://www.npmjs.com/package/use-ergo-state), or if you don't want to add a new package to your repo, feel free to copy the [source code](https://github.com/EthanStandel/use-ergo-state/blob/main/src/useErgoState.ts) as a custom hook into your project's `src/hooks` to try it out whenever you find the behavior of React's `useState` appears to be inoptimal for a scenario. It's under 50 LOC at the time of writing this, so I would understand if you feel it's not worth the associated risk with pulling in a package.
 
+# Bonus: Signals!
 
-{/*
-8. Conclusions, genuine RFC, please no "nobody will use this because it's not standard"
-9. Thanks S.js!
-10. Signals don't have to be the solution (but they might be)!
-  i. Signals as the solution: https://www.youtube.com/watch?v=lXDDNM5rZQI
-  ii. Dan's tweet: https://twitter.com/dan_abramov/status/1629927876693835777
-  iii. Preact's computed: https://preactjs.com/guide/v10/signals/#computedfn
-  iv. Solid's createComputed: https://www.solidjs.com/docs/latest/api#createcomputed'
-  v. Derived state in React, feat. You might not need an effect: https://beta.reactjs.org/learn/you-might-not-need-an-effect#updating-state-based-on-props-or-state
-*/}
+## Signals could also be the solution!
+
+There's been a lot of discussion about signals lately, and it seems awkward for me to criticize React's defacto state primitive without discussing it's leading competition in the front-end ecosystem. When signals are brought up as a superior solution to state management, the topic has a few branching paths. One of the branching topics that is said to be superior with signals is the fact that every existing signal implementation is ref based just like `useErgoState` and so [it solves issues like the setInterval problem just as well.](https://youtu.be/lXDDNM5rZQI?t=115)
+
+## Signals don't have to be the solution!
+
+So why `useErgoState` rather than an existing signal-based solution for React? Well using signals creates a lot of other complexities about how React should function. For instance, one of the nicest things about how React functions is how it expects you to deal with state that is derived from other states. React wants you to treat every render like it's the first render, and so their reccomendation is that you run those calculations inline, in the render. This is stated well in the article ["You might not need an effect"](https://beta.reactjs.org/learn/you-might-not-need-an-effect#updating-state-based-on-props-or-state) in React's beta documentation.
+
+<Card>
+```tsx
+// 🔴 Avoid: redundant state and unnecessary Effect
+const [fullName, setFullName] = useState('');
+useEffect(() => {
+  setFullName(firstName + ' ' + lastName);
+}, [firstName, lastName]);
+```
+<div style={{ textAlign: "center" }}>As opposed to</div>
+  
+```tsx
+const [firstName, setFirstName] = useState('Taylor');
+const [lastName, setLastName] = useState('Swift');
+// ✅ Good: calculated during rendering
+const fullName = firstName + ' ' + lastName;
+```
+</Card>
+
+With Signals, this kind of pattern becomes slightly less ergonomic. In signal based architectures, you component function doesn't rerun with every state update. So all state which is derived from other state should be declared, usually, as a computed signal. Preact's `@preact/signals-react` is a signal implementation for React and it's model allows you to conflate a signal as a state value that causes a VDOM rerender as well as something that can be plugged directly into the DOM. Preact's model is powerful because it allows you to declare your signals in such a way that they do act as state that requires rerenders (if you access the value of your signal directly in a component), or they can just act as signals whose updates are directly injected into the DOM. However, that can lead to inconsistent behavior where sometimes you need to create derived state using their [`computed` function](https://preactjs.com/guide/v10/signals/#computedfn), or you can do inline derived state depending on how the signal is used. In SolidJS it's a little more cut and dry, as you can declare one-off computed signals as functions, but generally you should use their [`createComputed` function](https://www.solidjs.com/docs/latest/api#createcomputed). I think for a lot of developers, these trades are not deal-breakers, but it is the DX that React has always intended to solve with it's rendering model.
+
+<Tweet>
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true" data-theme="dark"><p lang="en" dir="ltr">it’s one of those “does it scale” things. i am finding it difficult to believe that the approach where (a) it’s easy to add init-only rendering logic and (b) making it reactive requires refactorings, composes just as well. it’s what we had *before* React and what React solved.</p>&mdash; дэн (@dan_abramov) <a href="https://twitter.com/dan_abramov/status/1629927876693835777?ref_src=twsrc%5Etfw">February 26, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</Tweet>
+
+So that leaves `useErgoState` somewhere in-between the advantages of a signal-based architecture and the ease of React's component model which I think justifies its existance just a little, but also likely why this API model would never really take off or be adopted by React.
