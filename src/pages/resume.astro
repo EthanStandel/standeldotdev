@@ -18,20 +18,18 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
     <div class="container">
       <div class="content">
         <div class="intro">
-          <div class="headshot">
+          <div class="headshot no-print">
             <img src="/headshot.jpeg" />
           </div>
           <div class="text">
             <h1 class="name">
-              <span>
                 Ethan Standel
-              </span>
             </h1>
             <h2 class="title">
-              Senior software engineer
+              Senior software developer
             </h2>
             <p class="about-me">
-              Hi, my name is Ethan! I'm a fullstack software engineer focussing on building applications & systems that provide a unique challenge. I love building systems with strict, interesting, thoughtful, or just plain fun requirements in the areas of aesthetic, behavior, scalability, performance, accessibility, internationalization, or themability. I value developer experience, automated workflows, and shipping code over supporting overly customized architecture. I also happen to adore cotton-candy color schemes! Hopefully your organization is looking for engineers who share my interests and values!
+              Hi, my name is Ethan! I'm a fullstack software developer focussing on building applications & systems that provide a unique challenge. I love building systems with strict, interesting, thoughtful, or just plain fun requirements in the areas of aesthetic, behavior, scalability, performance, accessibility, internationalization, or themability. I value developer experience, automated workflows, and shipping code. Hopefully your organization is looking for developers who share my interests and values! <strong class="no-print">I also happen to love cotton-candy color themes, but to preserve your printer ink this can only be read on the web and this document will always print in black & white with no headshot!</strong>
             </p>
           </div>
         </div>
@@ -112,12 +110,23 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
     </div>
   </body>
 </html>
-<style lang="scss" is:global define:vars={{ check: `url("${Check}")` }}>  
+<style lang="scss" is:global define:vars={{ check: `url("${Check}")` }}>
   html, body {
     --primary: #ff00aa;
     --secondary: #0080ff;
+    --dark: #1f1f1f;
     --light: #4d4d4d;
     --lighter: #686868;
+    --highlight: #f0ffff;
+    @media print {
+      --primary: var(--dark);
+      --secondary: var(--dark);
+      --highlight: transparent;
+
+      .no-print {
+        display: none !important;
+      }
+    }
     font-family: 'Poppins', sans-serif;
     display: flex;
     flex-direction: column;
@@ -154,10 +163,12 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
         gap: 1em;
         width: 100%;
 
-        h1 > * {
-          background: linear-gradient(to right, var(--primary), var(--secondary));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+        h1.name {
+          @media not print {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
         }
 
         .headshot {
@@ -172,6 +183,9 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
             width: 9em;
             border-radius: 4.5em;
             object-fit: cover;
+            @media print {
+              filter: grayscale(100%);
+            }
           }
         }
 
@@ -200,7 +214,7 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
         padding-bottom: .5em;
         padding-left: .5in;
         padding-right: .5in;
-        background: azure;
+        background: var(--highlight);
         margin-left: -.5in;
         margin-right: -.5in;
         margin-top: .5em;
