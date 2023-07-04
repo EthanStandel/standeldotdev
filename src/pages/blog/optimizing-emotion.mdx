@@ -16,9 +16,9 @@ import { Card } from "../../components/Card";
 
 Emotion is a series of NPM packages that allow for extensible CSS-in-JS dynamic style construction, all under the `@emotion/*` organization. It is used as the styling engine for several popular component libraries including `@mui/*` and `@chakra-ui/*`.
 
-With the `@emotion/css` library, you can generate styles under a randomized className at runtime which can allow it to be used effectively with or without any framework. The `@emotion/react` library has special integrations with React that allow for additional optimizations and a `React.Context` driven theme system. Finally, the `@emotion/styled` library allows for the creation of React components by only specifying an HTML element name and it's associated styles (a pattern borrowed from the `styled-components` library). There are actually several other libraries in the Emotion ecosystem, but the rest are mostly underlying core libraries, compiler plugins, or testing tools.
+With the `@emotion/css` library, you can generate styles under a randomized className at runtime which can allow it to be used effectively with or without any framework. The `@emotion/react` library has special integrations with React that allow for additional optimizations and a `React.Context` driven theme system. Finally, the `@emotion/styled` library allows for the creation of React components by only specifying an HTML element name and its associated styles (a pattern borrowed from the `styled-components` library). There are actually several other libraries in the Emotion ecosystem, but the rest are mostly underlying core libraries, compiler plugins, or testing tools.
 
-If used correctly, Emotion can be a great tool for constructing highly dynamic applications and is perfomant enough for the task. It also has the DX benefit for React applications that is already found in most alternate framework templates in colocated styles. For example, Vue, Svelte, Astro, and others all allow for component scoped styles in the same file as the component logic and template. This makes for a great developer experience and Emotion brings this to React.
+If used correctly, Emotion can be a great tool for constructing highly dynamic applications and is performant enough for the task. It also has the DX benefit for React applications that is already found in most alternate framework templates in colocated styles. For example, Vue, Svelte, Astro, and others all allow for component scoped styles in the same file as the component logic and template. This makes for a great developer experience and Emotion brings this to React.
 
 ## So what is the problem?
 
@@ -26,19 +26,19 @@ Emotion can be slow. It is not always slow and for what it has to do, Emotion is
 
 ## Just how much work is Emotion doing?
 
-Just like at the build time of a CSS preprocessor, Emotion has to parse the style passed into it. Emotion _does not_ simply pass its input strings into a `<style>` tag, it must parse the style strings into an object tree. The reason your style strings must be parsed by Emotion before the browser is because Emotion offers SCSS-like nesting syntax as it uses [`stylis`](https://www.npmjs.com/package/stylis) as it's underlying stylsheet language.
+Just like at the build time of a CSS preprocessor, Emotion has to parse the style passed into it. Emotion _does not_ simply pass its input strings into a `<style>` tag, it must parse the style strings into an object tree. The reason your style strings must be parsed by Emotion before the browser is because Emotion offers SCSS-like nesting syntax as it uses [`stylis`](https://www.npmjs.com/package/stylis) as its underlying stylesheet language.
 
 Once the parsing is complete, it then generates a minified CSS output and inserts that value into a `<style>` tag in the `<head>` of the document. If you are using SSR then the content will be in the tag as a normal [Text](https://developer.mozilla.org/en-US/docs/Web/API/Text) node (which is how it content would load if you hand-wrote CSS into a `<style>` element). For SPA styles, they will be added rule-by-rule directly to a live [`CSSRuleList`](https://developer.mozilla.org/en-US/docs/Web/API/CSSRuleList) of an empty `<style>` tag for improved performance in cases of more frequent modifications of style rules.
 
 The generic `@emotion/css` library then returns a string of a random-hashed className that can be used to reference the styles that were just generated. The `@emotion/react` library handles the order-of-operations here slightly differently by only running style rule insertions when components are being mounted and memoizing the construction of these styles for future renders. There are performance advantages to using `@emotion/react` over `@emotion/css` in React applications but in the end, it always has to do all of these steps.
 
-_This is a lot of work to do at runtime._ The fact that most applications using Emotion don't show obvious perfomance buckling or dropped frames is impressive to the quality of the engineering at work in Emotion. However, I think it's important to understand here that using Emotion is never necessary and is always a tradeoff for gains in the developer experience at the risk of lost performance. There is nothing that you can do with Emotion that you can't do without it but it enhances code readability and increases developer velocity with the code colocation that it allows for.
+_This is a lot of work to do at runtime._ The fact that most applications using Emotion don't show obvious performance buckling or dropped frames is impressive to the quality of the engineering at work in Emotion. However, I think it's important to understand here that using Emotion is never necessary and is always a tradeoff for gains in the developer experience at the risk of lost performance. There is nothing that you can do with Emotion that you can't do without it but it enhances code readability and increases developer velocity with the code colocation that it allows for.
 
 ## How can we optimize our use of Emotion in React applications?
 
-### Opimization I. Avoid doing construction of styles in render functions.
+### Optimization I. Avoid doing construction of styles in render functions.
 
-Now that it's clear how much work Emotion has to do at runtime, it becomes far more obvious that we want to do this work as infrequently as possible. So this means avoiding using Emotion style constructions in renders as much as we possibly can. Despite almost every example in [the Emotion documentation](https://emotion.sh/docs/introduction) showing style constructions in render functions, this is not the best practice. The documentation, to me, reads as a bit too focussed on what is possible with Emotion and not enough on what would be best practice for performance.
+Now that it's clear how much work Emotion has to do at runtime, it becomes far more obvious that we want to do this work as infrequently as possible. So this means avoiding using Emotion style constructions in renders as much as we possibly can. Despite almost every example in [the Emotion documentation](https://emotion.sh/docs/introduction) showing style constructions in render functions, this is not the best practice. The documentation, to me, reads as a bit too focused on what is possible with Emotion and not enough on what would be best practice for performance.
 
 So please don't do this...
 
@@ -76,7 +76,7 @@ export const MyButton = (
 );
 ```
 <strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
-  _Figure 1._ An inoptimal use of Emotion which cause style reconstruction or cache fetching on every render.
+  _Figure 1._ A nonoptimal use of Emotion which causes style reconstruction or cache fetching on every render.
 </strong>
 </Card>
 
@@ -123,9 +123,9 @@ const styles = {
 
 In the second example here, we are only parsing and constructing the styles once and then reusing the same instance of `SerializedStyles` for every render of the component. If we do run the construction of styles in the render, Emotion will try to cache the style and fetch it from cache based on the input but this logic is still not free and it's still better to avoid it entirely and not trust that library optimizations will outperform writing code that is optimized from the start.
 
-### Opimization II. Ensure that your Emotion styles can be properly minified in your build output.
+### Optimization II. Ensure that your Emotion styles can be properly minified in your build output.
 
-When creating styles using the `css` template tag function (like both examples above), the template passed to the function is one large string which is outside of the context of your JavaScript. This means that when standard build tools go through you code to minify the content, they won't touch your style strings. This leaves you with a bunch of extra white space characters in your build outputs that unecessarily increases the size of your bundle. This problem is made worse if you use `css` template styles inside of your components as all the space & newline characters from the nesting depth of your component will also be preserved in the output.
+When creating styles using the `css` template tag function (like both examples above), the template passed to the function is one large string which is outside of the context of your JavaScript. This means that when standard build tools go through your code to minify the content, they won't touch your style strings. This leaves you with a bunch of extra white space characters in your build outputs that unnecessarily increases the size of your bundle. This problem is made worse if you use `css` template styles inside of your components as all the space & newline characters from the nesting depth of your component will also be preserved in the output.
 
 <Card>
 ```tsx
@@ -152,7 +152,7 @@ import{css}from'@emotion/react';export const MyButton=(props)=>createElement("bu
 </strong>
 </Card>
 
-As you can see, a highly unecessary amount of the original code structure intended for code readability is left in the output. This issue can be avoided with one of two solutions.
+As you can see, a highly unnecessary amount of the original code structure intended for code readability is left in the output. This issue can be avoided with one of two solutions.
 
 #### Minification solution 1: Use object styles instead of template string styles for reliable minification.
 
@@ -197,7 +197,7 @@ const styles = {
 </strong>
 </Card>
 
-Using object styles also has the added benefit of giving you better syntax validation, code highlighting, and auto-completion in your editor as you are writing your styles. Because _anything_ can be a CSS property due to the existance of [custom properties/variables](https://developer.mozilla.org/en-US/docs/Web/CSS/--*), object styles are not _strictly_ typed in TypeScript but they do offer [loose autocomplete](https://www.youtube.com/channel/UCswG6FSbgZjbWtdf_hMLaow/community?lb=UgkxYzADCYswk8um65IUNVjT5KGuXhJJsh_V) for known existing properties. You are also far more likely to catch simple syntax errors in object styles.
+Using object styles also has the added benefit of giving you better syntax validation, code highlighting, and auto-completion in your editor as you are writing your styles. Because _anything_ can be a CSS property due to the existence of [custom properties/variables](https://developer.mozilla.org/en-US/docs/Web/CSS/--*), object styles are not _strictly_ typed in TypeScript but they do offer [loose autocomplete](https://www.youtube.com/channel/UCswG6FSbgZjbWtdf_hMLaow/community?lb=UgkxYzADCYswk8um65IUNVjT5KGuXhJJsh_V) for known existing properties. You are also far more likely to catch simple syntax errors in object styles.
 
 <Card withCopy client:idle>
 ```tsx
@@ -207,7 +207,7 @@ const brokenStyle = css`
 `;
 ```
 <strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
-  _Figure 5._ A broken style due to a missing semicolon. No error will be thrown and neither style rule will be succesfully applied in the generated class because the missing semicolon will break the parsing of all styles until _the next semicolon._
+  _Figure 5._ A broken style due to a missing semicolon. No error will be thrown and neither style rule will be successfully applied in the generated class because the missing semicolon will break the parsing of all styles until _the next semicolon._
 </strong>
 </Card>
 
@@ -237,13 +237,13 @@ import{css}from'@emotion/react';export const MyButton=(props)=>createElement("bu
 </strong>
 </Card>
 
-This eliminates the many characters of whitespace which would otherwise be included in your production bundle, and in fact may be _the most perfomant_ option because this output ends up slightly smaller than minified object styles. It's also worth considering that this input is the native expectation of the underlying Stylis parser, whereas object styles are [partially converted to strings](https://github.com/emotion-js/emotion/blob/main/packages/serialize/src/index.js#L228) before being parsed again into the Stylis [AST](https://github.com/thysultan/stylis#abstract-syntax-structure).
+This eliminates the many characters of whitespace which would otherwise be included in your production bundle, and in fact may be _the most performant_ option because this output ends up slightly smaller than minified object styles. It's also worth considering that this input is the native expectation of the underlying Stylis parser, whereas object styles are [partially converted to strings](https://github.com/emotion-js/emotion/blob/main/packages/serialize/src/index.js#L228) before being parsed again into the Stylis [AST](https://github.com/thysultan/stylis#abstract-syntax-structure).
 
-However, this plugin is not always an option. If you're not using Babel or a framework/build-tool that suppports Babel plugins, then you'll be entirely without access to this optimization. This leads back to my advice that it is better write code that is perfomant from the start, rather than relying on a plugin to fix it for you. _Technically_ we are still relying on the JavaScript build toolchain to minify our code, but this is a much more common and reliable optimization than relying on a specific plugin to minify template string styles.
+However, this plugin is not always an option. If you're not using Babel or a framework/build-tool that supports Babel plugins, then you'll be entirely without access to this optimization. This leads back to my advice that it is better to write code that is performant from the start, rather than relying on a plugin to fix it for you. _Technically_ we are still relying on the JavaScript build toolchain to minify our code, but this is a much more common and reliable optimization than relying on a specific plugin to minify template string styles.
 
-### Opimization III. Consider if you really need Emotion and everything that it offers 🤷‍♂️
+### Optimization III. Consider if you really need Emotion and everything that it offers 🤷‍♂️
 
-The final solution to optimizing use of Emotion in React applications that I would like to propose for consideration is: not using it. There are many situations where you may have to pull in Emotion. If your organization has standardized use of a particular component library which relies on Emotion, like MUI or Chakra, then you already depend on Emotion. You are best off just using Emotion because the tool is already in front of you. So use it, and use it well with the above recommended optimizations.
+The final solution to optimizing use of Emotion in React applications that I would like to propose for consideration is: not using it. There are many situations where you may have to pull in Emotion. If your organization has standardized use of a particular component library which relies on Emotion, like MUI or Chakra, then you already depend on Emotion. You are best off just using it in that case because the tool is already in front of you. So use it, and use it well with the above recommended optimizations.
 
 However, if you are starting a new application and are considering using Emotion, you may want to take a wider look at the rest of the JavaScript ecosystem. There are a lot of great solutions to this problem. Emotion is a well engineered solution and fits very well into React's "just JavaScript" engineering model, but it is not the only solution. With the availability of CSS variables, sharing state to nested CSS has actually become incredibly easy.
 
@@ -284,10 +284,10 @@ export const MyButton = ({
 </strong>
 </Card>
 
-The reason Emotion is chosen for bigger component libraries is that it allows for high customizability with it's theme overrides model which is exposed by most component libraries that use it. This allows them to be highly overridable and configurable, but at the cost of a less perfomant solution to styling. If you are building a new component library, you may want to consider that you can sacrifice the extent of your customizability & configurability in exchange for a more performant solution. This would allow you to compete with bigger component libraries because while they would have the advantages that Emotion affords them, your library could have the performance advantage.
+The reason Emotion is chosen for bigger component libraries is that it allows for high customizability with its theme overrides model which is exposed by most component libraries that use it. This allows them to be highly overridable and configurable, but at the cost of a less performant solution to styling. If you are building a new component library, you may want to consider that you can sacrifice the extent of your customizability & configurability in exchange for a more performant solution. This would allow you to compete with bigger component libraries because while they would have the advantages that Emotion affords them, your library could have the performance advantage.
 
 If you really feel that you need what Emotion offers, there are still other alternatives in the runtime CSS-in-JS ecosystem. [Stitches](https://stitches.dev/) is a fantastic alternative of similar features to Emotion. It is a bit more opinionated than Emotion, and only allows for object-styles. However, this means that it doesn't have to support a custom string parser like Emotion does by relying on Stylis. Because of this, Stitches is smaller, and by offering less syntax options [it maintains better performance than Emotion in their open-sourced benchmarks](https://stitches.dev/docs/benchmarks).
 
 ## Conclusion
 
-Emotion is a well engineered, unopinionated, and surprsingly performant ecosystem of tools that may offer the optimal implementation of a sensible solution for a complex problem, but it is not without it's drawbacks. It is important to understand the tradeoffs that you are making when you choose to use Emotion or any styling system in your application or library. It is also important to understand that there are many ways to optimize your use of Emotion, and the docs aren't always up-front about it and seem to focus more directly on the enhanced capabilities and developer experience than the potential drawbacks. If you come into a project with all this awareness in mind and are able to account for optimizations slightly earlier, than you can avoid [having to do a lot of refactoring later on if Emotion starts to feel like it's not meeting your needs](https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b).
+Emotion is a well engineered, unopinionated, and surprisingly performant ecosystem of tools that may offer the optimal implementation of a sensible solution for a complex problem, but it is not without its drawbacks. It is important to understand the tradeoffs that you are making when you choose to use Emotion or any styling system in your application or library. It is also important to understand that there are many ways to optimize your use of Emotion, and the docs aren't always up-front about it and seem to focus more directly on the enhanced capabilities and developer experience than the potential drawbacks. If you come into a project with all this awareness in mind and are able to account for optimizations slightly earlier, than you can avoid [having to do a lot of refactoring later on if Emotion starts to feel like it's not meeting your needs](https://dev.to/srmagura/why-were-breaking-up-wiht-css-in-js-4g9b).
