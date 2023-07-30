@@ -211,7 +211,7 @@ export const HomePageClient = (props: ComponentProps<typeof HomePage>) => (
 
 This does some damage to the integrity of this pattern by requiring code repetition on every page utilizing `LiveContentData`. However, depending on your use case, this verbosity is a small trade for the advantages of having consistent server renders. In the case of this particular application, the use of RSC is helping the application to avoid hydrating some fairly complex and large structures including all of the content data that doesn't get rendered, the component tree and associated JavaScript for rendering the markdown content, as well as the `useContentData` hook which has the CMS communication client logic. To be able to remove all of that code that was effectively irrelevant to most users seems like a high-value trade.
 
-## Are there any alternatives to React server components?
+## Alternatives to React Server Components and partial hydration
 
 RSC is not the first solution to partial hydration, though all comparisons have their advantages and disadvantages in certain scenarios.
 
@@ -227,9 +227,9 @@ The Deno framework [Fresh](https://fresh.deno.dev/) has an incredibly similar lo
 
 [Qwik](https://qwik.builder.io/) might be the most unique existing solution for partial hydration. In fact, Qwik's architects would argue that it _does not hydrate at all_ but performs it's own solution to "SSR but with interactivity" called _resumability._ Qwik is in fact it's own rendering framework, so it doesn't use React though it does use JSX templating and function components to keep [a similar developer experience to React](https://qwik.builder.io/docs/guides/react-cheat-sheet/#react-vs-qwik). Resumability empowers Qwik to share state between the client and server via many framework driven attributes added to the HTML elements in the server-side render. In the end, Qwik is able to only render logic and state with no actual full "components" making it to the client at all. It uses a compiler which finds the relevant logic that will be needed for interactivity and _only_ sends that to the browser. This makes Qwik the ideal solution to this problem in general because it's the "magic" solution that only sends the JavaScript that you use! This however, leaves Qwik with the same problems that always exist with _too much magic._ [When the magic breaks, it's really hard to determine what went wrong and if it's your fault, or the framework.](https://www.youtube.com/watch?v=uXCipjbcQfM&t=1328s)
 
-## Key takeaway
+## Final thoughts
 
-The key takeaway here seems to be that partial hydration is an interesting problem that is the primary focus of a lot of brilliant engineers. React server components are an interesting solution to the problem, that make for an extensible solution that makes few sacrifices in extensibility for a major sacrifice in final bundle size. However,  
+Partial hydration is an interesting problem that is the primary focus of many brilliant engineers. React server components are an interesting solution to the problem, that make for an extensible solution that makes few sacrifices in architecture & extensibility for what could be seen as a major sacrifice in final bundle size. All of these solutions have positives and negatives. The choice to integrate this technology into NextJS seems to be the right direction for the relationship between React & NextJS. If you're intending on building an application with NextJS then I would recommend using the app directory, whether or not you maximize on the potential performance gains of RSC.
 
 ## ✳️ Notes
 
