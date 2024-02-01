@@ -1,0 +1,248 @@
+---
+layout: ../../components/Layout/Layout.astro
+title: Using dynamic components in your MPA
+description: It's not just React!
+date: 1.30.24
+categories:
+  - Dynamic components
+  - MPA
+  - Architecture
+---
+import { Card } from "../../components/Card";
+
+You have a multi-page application (MPA) which renders your frontend and it meets 99% of your needs. Your HTML is rendered from a server-side templating language like ASP, Razor, JSP, Django Templates, Pug, Handlebars, etc. It's lightweight, fast, and ideal in its technical simplicity. Up until now, any dynamic behavior you've needed has been easy enough to add via progressive enhancement in vanilla JS using imperative programming. But then the newest business requirement comes in and it's a real doozy. You know immediately: this would be easy to do as part of an SPA using a frontend framework like React or Vue, but this feels like a huge ask under the current architecture.
+
+So you need to introduce some dynamic components to your MPA code-base. What should you do? This article aims to discuss different scenarios and how they can be handled in the order of most ideal to least ideal.
+
+## Scenario 1: Your existing stack already accounts for this!
+
+The first step I can recommend would be to see if your current toolchain already has a built in solution that fits your needs. The examples in this category are somewhat artificially limited, as there are many tech stacks which account for having dynamic client-side behavior with server-side rendering. However, there's only a few cases where that hybrid behavior isn't at the core of how that technology functions. For example, it would be a rare case for someone to use NextJS without the explicit understanding that you naturally have access to client-side React when you need it. But there are some frameworks for which this kind of feature isn't on the front-page of the documentation.
+
+### Blazor
+
+If you've found yourself in this position and are lucky enough to already be using C#, .NET, and Razor templates then the good news is that you won't have to stray far to create dynamic components in a technology which you are already comfortable with. Your toolchain has actually already considered this for you in the form of [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor). Blazor is a technology which gives you access to a superset of Razor templating syntax to support the addition of dynamic client-side behavior. The C# code in Blazor files compiles down to WASM to allow you to use the same tools on the client and server.
+
+<Card withCopy client:idle>
+```razor
+<button @onclick="Increment">The count is @count</button>
+
+@code {
+    private int count = 0;
+
+    private void Increment()
+    {
+        count++;
+    }
+}
+```
+<strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _Figure 1._ A simple Blazor counter component
+</strong>
+</Card>
+
+### Considerations for Blazor
+
+If this is your scenario, then you can probably stop reading as Blazor is likely the right technology for your situation. That being said, it's not a perfect choice. [Blazor is slow](https://krausest.github.io/js-framework-benchmark/2024/table_chrome_121.0.6167.85.html). It is among the slowest client-side frameworks. This is because the current model for WASM is not intended for building full applications. WASM is intended to offload high-intensity logic from JavaScript to a more performant platform and then communicate the results of that workload back to JavaScript for your application to utilize. For WASM to support a full application and be able to dynamically update the DOM, it must come with a binding-library which exposes all the functions it needs as a bridge back to JavaScript, and that bridge is a __major__ performance bottleneck. As such, Blazor is so slow that I personally can only recommend it in this exact scenario: You already have a .NET application, and you have now realized that you need dynamic client-side components. But I can't in good faith recommend starting a new application with the intention of heavily relying on Blazor.
+
+### Phoenix LiveView
+
+There's often features that come with some backend frameworks that give you a bit of prebuilt JavaScript to interface with some more advanced features of the backend framework. If you were making an application using Elixir, Phoenix, and HEEx templates, then you may already have a solution that could work for you in [Phoenix LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html). LiveView is a tool within the Phoenix framework that takes advantage of the BEAM VM's excellent concurrency safety & performance to give stateful updates via a socket connection. This allows the server to own and update UI state which may be exactly what you need to create your dynamic component without having to reach for another tool outside of your current stack.
+
+### Challenges & considerations for Phoenix LiveView
+
+LiveView is a great tool for its use-cases but those cases can be limited. And obviously, running stateful updates for dynamic behavior on your server can create some scaling challenges. This also makes your client-side state very limited.
+
+## Scenario 2: Your existing stack can be stretched to meet your needs!
+
+### HTMX
+
+If you find yourself in the scenario for which your existing architecture can't solve this problem for you, you may want to consider [HTMX](https://htmx.org/). HTMX is a single JavaScript bundle that allows you to write dynamic behavior driven entirely by the server. This is similar in concept to Phoenix LiveView but it doesn't entirely rely on sockets or the BEAM concurrency model. In the HTMX model, your server exposes endpoints that act like component templates. These endpoints return HTML fragments, rather than a full document.
+
+<Card>
+<div style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _server.js_
+</div>
+```js
+const context = { count: 0 };
+
+on.post("/increment", (request) => {
+    context.count++;
+    return render(request, "counter.html", context);
+});
+```
+<div style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _counter.html_
+</div>
+```html
+<button hx-post="/increment" hx-swap="outerHTML">
+    The count is {{ count }}
+</button>
+```
+<strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _Figure 2._ A very primitive counter component implemented in HTMX
+</strong>
+</Card>
+
+### Challenges & considerations for HTMX
+
+HTMX can be a very powerful option that allows for a wide range of added capabilities with minimal additions to your architecture. You can continue to use your existing server & templating system as you were before. However, it is not without its drawbacks & complexities. The core challenge of this model can be seen in the above example: all component state must now live on the server, and more ideally in your user's sessions.
+
+In the example above, the `context` is global to the server. So in that example all users would share one single value for `count`. In an SPA model, simple pieces of state like this will be naturally segregated to each user's browser environment, whereas the HTMX model forces even simple pieces of dummy state to be maintained by your server. In an SPA, the memory would naturally be dumped when the user navigates or closes the tab/window, whereas in HTMX the server must make a standardized decision for when to stop holding onto that state. And of course where the performance of Blazor DOM updates was limited to the slow WASM to JavaScript bridge, the performance of HTMX updates are limited to the speed of the network. While this means that your initial page loads are faster because your users aren't downloading templates for components that haven't had their state modified yet, this could be considered the worst case scenario for real-time behavior performance.
+
+HTMX has proven to be a [fantastic solution in many cases](https://htmx.org/essays/a-real-world-react-to-htmx-port/), but it isn't applicable to all scenarios. If you need lightweight interactivity sprinkled throughout a website, then HTMX could be the ideal solution for your use-case. But if you need dense & responsive interactivity, then it may not meet your needs.
+
+## Scenario 3: Your stack can't meet your needs.
+
+After reviewing the existing tools available in your stack and considering tools like HTMX, you may still find your options lacking for what you are being tasked to build. So instead, you want to bring in an SPA-like JavaScript component development flow alongside your existing application. So does this mean it's time to bring in React? There's still some slightly more ideal options to consider first. The challenge with React is that there's no natural interface between server-generated HTML and rendering a declared React component. But is there a platform which offers a natural interface between HTML & rendering a declared component? Thankfully yes! There are several frameworks which run on the back of the [web-component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) architecture which provide us with exactly such a model.
+
+### Lit
+
+Lit is a framework by Google which allows you to make web-components in a simple and standardized fashion. The key advantage of having your components registered as web-components is that the process of mounting your components happens naturally in the browser's custom elements API. However, the actual development experience is very akin to developing with React class components, rendering using template strings rather than JSX.
+
+<Card>
+```ts
+import { LitElement, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
+
+@customElement("lit-counter")
+export class MyElement extends LitElement {
+  @property({ type: Number })
+  count = 0;
+
+  private _increment() {
+    this.count++;
+  }
+
+  render() {
+    return html`
+      <button @click=${this._increment}>The count is ${this.count}</button>
+    `;
+  }
+}
+```
+<strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _Figure 3._ A counter component in Lit
+</strong>
+</Card>
+
+As long as the bundled JavaScript output is added to any & all pages which need these components within your MPA, then all you have to do to add this component is put `<lit-counter></lit-counter>` in your HTML and the component will be naturally instantiated by the browser. So that means no added script tags which target a `<div>` with a particular `#id` on it. Just use your components in a natural fashion.
+
+### Stencil
+
+Stencil is a very similar tool to Lit with slightly different design decisions & UX. Stencil aims to be slightly closer to React, and thus uses JSX. However, it also uses the same concept of decorators which denote reactive properties which trigger a rerender.
+
+<Card>
+```tsx
+import { Component, h, State } from '@stencil/core';
+
+@Component({ tag: 'stencil-counter' })
+export class Counter {
+  @Prop() count = 0;
+
+  increment() {
+    this.count++;
+  }
+
+  render() {
+    return <button onClick={() => this.increment()}>The count is {this.count}</button>;
+  }
+}
+```
+<strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _Figure 4._ A counter component in Stencil
+</strong>
+</Card>
+
+As can be seen from the two examples, Stencil & Lit share very similar architecture both from a DX perspective as well as an implementation perspective. However, Stencil's use of JSX gives it a few advantages. Namely, that Stencil components are actually internally strongly typed with TypeScript. Part of the Stencil compilation process builds out your component tags with their props to the global JSX namespace. So if I wanted to use the above Stencil component in another component and I wrote `<stencil-counter count="5" />`, I would actually get a compilation error from TypeScript that informs me that property `count` must be a `number` and not a `string`. Comparably, when using the Lit example, `<lit-counter count="5"></lit-counter>` would actually be the proper syntax, and you could only get a _runtime_ error if you passed in a string which could not be converted to a number.
+
+### Challenges & considerations for both Stencil & Lit
+
+Both Lit & Stencil are built to use the web-component architecture, so there are certain integrations that will not work as expected by default. For instance, if your project uses an atomic CSS tool like Tailwind or Bootstrap then it may have some small integration hurdles with these technologies. web-components are defined as a series of browser native features used together. One of those technologies is the [shadow DOM](https://developer.mozilla.org/en-US/docs/Web/API/Web_components#shadow_dom), which creates an isolated environment for each of your component instances to run in. That way your components don't have to worry about adding styles which affect the rest of the document and they don't have to worry about being affected by the styles of the rest of the document. This can obviously create a very safe & stable development experience, but if your architecture relied on styles coming from a large shared stylesheet, then this could be a major hindrance to you.
+
+Lit & Stencil are both built with the full structure & safety of the web-component architecture in mind, but luckily they both have escape hatches to avoid things like the shadow-DOM. With Lit, you just need to override the `createRenderRoot` method in your component. Normally this method returns a shadow-root but instead you can have it return `this` because custom-element classes are, themselves, DOM elements that extend the `HTMLElement` class. In Stencil, you only need to add the `shadow: false` option to the configuration object passed to your `@Component` decorator. This means that with very little work both of these tools can be made to support the architecture of most projects as needed, but they are not without unique considerations.
+
+## Scenario 4: You've been prescribed a solution.
+
+We've all been there: Your project manager tells you that another development team has already built the component in React. They even bundled it into a library, so all you need to do is drop in the library right? But you know it's not that easy. You're not using React. You're not even really using a frontend framework. So how can we make this process of utilizing React in your MPA as painless as possible?
+
+### Bundling a Vite app into an MPA
+
+There are steps that just can't be skipped surrounding the bundling, building, and exporting process. In my experience, I've found that utilizing Vite is the best way to go these days. It solves the most problems up front, has the fastest performance, and requires very little in terms of configuration overrides.
+
+If you instantiate a Vite application inside your MPA repository, you will naturally get a `vite.config.js` file. In the Vite config, if you set `config.build.rollupOptions.output.manualChunks` to `undefined` and set `config.build.rollupOptions.output.entryFileNames` to something simple like `"app.js"`, you will remove all chunking & file-name hashing from the build output so that your JS bundle will always be one file with a consistent name. This makes it much easier to link to from your MPA.
+
+The only other configuration option that _must_ be updated at this point is `config.build.outDir` which is where you want all output files to be placed. Be warned, that if you've defined a custom `config.root` then your `outDir` will be relative to that `root`. You'll want to make the value of the `outDir` point to the directory where your backend wants you to place statically hosted files. I would also personally recommend that you put the `outDir` as its own subdirectory which is marked in your `.gitignore` so that you can avoid commiting build outputs to your actual repository.
+
+Finally, you may want to add a `postbuild` script to clean up artifacts which you don't want in the output. In the case of Vite, the root of each build is actually the `index.html` file, so you'll probably just want to delete the copy of that file in your `outDir` after every build completion.
+
+Once all of these items are complete, then you can just add the Vite installation & testing steps to your existing CI/CD flow and add the build step to fire before your backend build. If some of these steps feel a little bit like a code-smell, they should. This is inherently the twisting of a tool to be what we need it to be. This is not exactly how Vite is intended to be used, but this is the position you will sometimes find yourself in. And from my past experience, I would argue that this makes for better long-term maintenance than fully building out exactly what you need with a custom Webpack configuration.
+
+### Exposing React components to your MPA
+
+Now that you have a JavaScript bundle being built and linked to by your MPA, how can we best expose React components to your existing templating? For this step, I recommend looking at all the advantages of the prior technologies and do your best to roll them into this solution. You're not going to find a better solution for exposing JavaScript components to HTML than custom elements, so why not lean into it!
+
+<Card>
+```tsx
+import { createRoot } from "react-dom/client";
+import { type ComponentType, useState } from "react";
+
+abstract class ReactMountingElement extends HTMLElement {
+  abstract readonly Component: ComponentType;
+
+  readonly #root = createRoot(this);
+
+  connectedCallback() {
+    this.#root.render(<this.Component />);
+  }
+
+  disconnectedCallback() {
+    this.#root.unmount();
+  }
+}
+
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount((count) => count + 1)}>
+      The count is {count}
+    </button>
+  );
+};
+
+const exposedComponents: Record<string, ComponentType> = {
+  "react-counter": Counter,
+};
+
+Object.entries(exposedComponents).forEach(([tag, Component]) =>
+  window.customElements.define(
+    tag,
+    class extends ReactMountingElement {
+      Component = Component;
+    }
+  )
+);
+
+```
+<strong style={{ textAlign: "center", display: "block", paddingLeft: "1em", paddingRight: "1em" }}>
+  _Figure 5._ A React counter component which is exposed as a custom element
+</strong>
+</Card>
+
+The above code shows a very simple pattern for exposing React components as custom elements. Once the above code is added to the bundle loaded into your MPA, you can create instances of the counter component using `<react-counter></react-counter>`! This gives you the simplest possible interface between React & your backend HTML templating engine. This doesn't solve _all_ challenges, but it's a very simple baseline to build off of. From here, you can make decisions that fit your needs around things like accepting children to your component, managing incoming props, and especially non-children HTML/JSX props. For those solutions, I think utilizing a web-component model using `<template>` & `<slot>` elements would be the best approach but that doesn't make it easily solved.
+
+### The drawbacks to this solution
+
+The obvious drawback here is in the fact that we are once again bending a tool slightly outside of how it is intended to be used. And for that reason, we have to re-solve problems that are solved by default in the solutions for the previous scenarios. What was supposed to be the easy solution, "just implement an already existing React library," has become an avalanche of custom infrastructure problems that must all be solved (or will likely eventually need to be solved).
+
+## To summarize...
+
+There are so many different versions of this scenario that you might find yourself in. You may discover that it was never an issue because you can integrate something like Blazor into your already existing app. Or you might discover that HTMX meets your needs and you can run all the dynamic components out of server session state. But if neither of these cases meet your needs, but you still have full control over the technology used, I cannot recommend enough leaning into frameworks & tools that have this situation in mind like Lit or Stencil. However, if you find yourself needing to integrate a specific frontend framework into your MPA, I hope that this article has shown you that it's within reach.
+
+## Sidebar: Protecting yourself from these scenarios in the future
+
+There are a lot of new technologies which are appearing in the web development world which solve these kinds of problems by default. Obviously tools like Next, Nuxt, Angular Universal (or Analog.js), SvelteKit, SolidStart, or QwikCity all exist as meta-frameworks around existing frontend frameworks. However, there are also tools which allow you the simplicity of server-side only rendering, while being well prepared for an escape hatch into the frontend frameworks. At the forefront of this model and a technology that I can personally recommend, is [Astro](https://astro.build/).
+
+Astro is built to default for simplicity by shipping zero JavaScript to the client by default, so it is incredibly fast. However, Astro is also built for adaptability by offering a suite of [plugins, adapters, and integrations](https://docs.astro.build/en/guides/integrations-guide/). Astro uses SSG by default for maximum performance, but it has SSR adapters to allow it to run best however it's deployed. Astro ships no JavaScript by default, but it has plugins for every major frontend framework so that components in that framework can be used naturally in Astro's templates. When you mount a React component in Astro, the React plugin will offer you the full control for exactly how you want that component to hydrate via [a series of directives](https://docs.astro.build/en/reference/directives-reference/#client-directives).
+
+So if you want to build a web application with maximum foresight for scenarios like this, then picking a meta framework would be a great way to secure yourself when complex business requests come in. But picking a framework agnostic platform like Astro can give you maximum performance and technical simplicity early in a project, while giving you the ability to easily grow your architectural complexity.
