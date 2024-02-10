@@ -12,7 +12,7 @@ import { Card } from "../../components/Card";
 
 You have a multi-page application (MPA) which renders your frontend and it meets 99% of your needs. Your HTML is rendered from a server-side templating language like ASP, Razor, JSP, Django Templates, Pug, Handlebars, etc. It's lightweight, fast, and ideal in its technical simplicity. Up until now, any dynamic behavior you've needed has been easy enough to add via progressive enhancement in vanilla JS using imperative programming. But then the newest business requirement comes in and it's a real doozy. You know immediately: this would be easy to do as part of an SPA using a frontend framework like React or Vue, but this feels like a huge ask under the current architecture.
 
-So you need to introduce some dynamic components to your MPA code-base. What should you do? This article aims to discuss different scenarios and how they can be handled in the order of most ideal to least ideal.
+So you need to introduce some dynamic components to your MPA code-base. What should you do? This article aims to discuss different scenarios and how they can be handled in the order of most ideal to least ideal. These scenarios and my recommended solutions are not entirely exhaustive, but recent work forced me to consider these scenarios more directly. Hopefully my experience and research can be an aid to you and your work.
 
 ## Scenario 1: Your existing stack already accounts for this!
 
@@ -93,7 +93,7 @@ HTMX has proven to be a [fantastic solution in many cases](https://htmx.org/essa
 
 ## Scenario 3: Your stack can't meet your needs.
 
-After reviewing the existing tools available in your stack and considering tools like HTMX, you may still find your options lacking for what you are being tasked to build. So instead, you want to bring in an SPA-like JavaScript component development flow alongside your existing application. So does this mean it's time to bring in React? There's still some slightly more ideal options to consider first. The challenge with React is that there's no natural interface between server-generated HTML and rendering a declared React component. But is there a platform which offers a natural interface between HTML & rendering a declared component? Thankfully yes! There are several frameworks which run on the back of the [web-component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) architecture which provide us with exactly such a model.
+After reviewing the existing tools available in your stack and considering tools like HTMX, you may still find your options lacking for what you are being tasked to build. So instead, you want to bring in an SPA-like JavaScript component development flow alongside your existing application. So does this mean it's time to bring in React? There are still some more ideal options to consider first. The challenge with React is that there's no natural interface between server-generated HTML and rendering a declared React component. But is there a platform which offers a natural interface between HTML & rendering a declared component? Thankfully yes! There are several frameworks which run on the back of the [web-component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) architecture which provide us with exactly such a model.
 
 ### Lit
 
@@ -133,7 +133,7 @@ Stencil is a very similar tool to Lit with slightly different design decisions &
 
 <Card>
 ```tsx
-import { Component, h, State } from '@stencil/core';
+import { h, Component, Prop } from '@stencil/core';
 
 @Component({ tag: 'stencil-counter' })
 export class Counter {
@@ -169,9 +169,9 @@ We've all been there: Your project manager tells you that another development te
 
 There are steps that just can't be skipped surrounding the bundling, building, and exporting process. In my experience, I've found that utilizing Vite is the best way to go these days. It solves the most problems up front, has the fastest performance, and requires very little in terms of configuration overrides.
 
-If you instantiate a Vite application inside your MPA repository, you will naturally get a `vite.config.js` file. In the Vite config, if you set `config.build.rollupOptions.output.manualChunks` to `undefined` and set `config.build.rollupOptions.output.entryFileNames` to something simple like `"app.js"`, you will remove all chunking & file-name hashing from the build output so that your JS bundle will always be one file with a consistent name. This makes it much easier to link to from your MPA.
+If you instantiate a Vite application inside your MPA repository, you will naturally get a `vite.config.js` file. In the Vite config, if you set `config.build.rollupOptions.output.manualChunks` to `undefined` and set `config.build.rollupOptions.output.entryFileNames` to something simple like `"app.js"`, you will remove all chunking & file-name hashing from the build output so that your JS bundle will always be one file with a consistent name. This makes it much easier to link to from your MPA. If you want to invalidate old script builds from cache for users, then you can easily bust the cache by requesting the JavaScript file with an arbitrary param like your latest server start time or time from your most recent build. So in a Node server, for example, the built JavaScript file could be requested from `/app.js?cacheBust=${performance.timeOrigin}`.
 
-The only other configuration option that _must_ be updated at this point is `config.build.outDir` which is where you want all output files to be placed. Be warned, that if you've defined a custom `config.root` then your `outDir` will be relative to that `root`. You'll want to make the value of the `outDir` point to the directory where your backend wants you to place statically hosted files. I would also personally recommend that you put the `outDir` as its own subdirectory which is marked in your `.gitignore` so that you can avoid commiting build outputs to your actual repository.
+The only other configuration option that _must_ be updated at this point is `config.build.outDir` which is where you want all output files to be placed. Be warned, that if you've defined a custom `config.root` then your `outDir` will be relative to that `root`. You'll want to make the value of the `outDir` point to the directory where your backend wants you to place statically hosted files. I would also personally recommend that you put the `outDir` as its own subdirectory which is marked in your `.gitignore` so that you can avoid committing build outputs to your actual repository.
 
 Finally, you may want to add a `postbuild` script to clean up artifacts which you don't want in the output. In the case of Vite, the root of each build is actually the `index.html` file, so you'll probably just want to delete the copy of that file in your `outDir` after every build completion.
 
