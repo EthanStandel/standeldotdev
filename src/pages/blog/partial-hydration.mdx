@@ -1,0 +1,244 @@
+---
+layout: ../../components/Layout/Layout.astro
+title: Partial hydration, React Server Components, and the NextJS app directory
+description: Everything you didn't realize you wanted to know about the complexity of modern web rendering!
+date: 7.25.23
+categories:
+  - React
+  - NextJS
+  - Hydration
+---
+import { Card } from "../../components/Card";
+import ArticleHeading from "../../components/ArticleHeading.astro";
+
+React server components are an implementation of a pattern called "partial hydration" or "islands of interactivity." To see how React (and other frameworks) got to this model, it seems important to go through the background of how React has worked historically.
+
+## How a traditional React app works
+
+When React was created, it was constructed as a client-side rendering (CSR) library for JavaScript. This means that it only ever runs on the browser of a user who has loaded a site built with React. A traditional React application is written as JavaScript and exported as a series of bundles of static HTML, CSS, JavaScript. When a server hosts this application, it is hosting strictly static files. If this kind of application needs data, it must fetch it from another server.
+
+This implementation of React is an application model known as the single page application (SPA). This phrase is more of an implementation detail rather than anything relevant to the user-experience. If an application is an SPA, it just means that the application is hosted as a single HTML file and the user interface (UI) is entirely constructed using client-side rendering (CSR). When any file is requested from the server, the server will always return the file at that path if it exists _or_ that lone HTML file if there's nothing at that location. When that HTML file is returned, it fetches the JavaScript which runs the React application which in turn has the logic that determines what exactly the users should be looking at based upon the current route. Notably, this is exactly how other frameworks like Vue, Angular, Svelte, and Solid all started as well.
+
+SPAs work well for applications, but because it's all constructed with CSR, there are a few disadvantages. The primary disadvantages shared by all SPA solutions are around search engine optimization (SEO). Search engines have recently become somewhat capable of indexing SPA sites, but they have to work with a lot of assumptions and in the end they can't index as accurately. This can result in your site being ranked lower as the content can not be as effectively verified. For instance, a deployed SPA is not capable of returning a 404 response, because anytime you would get a 404 you just return the index.html and JavaScript will then render a faux 404 page.
+
+Additionally, time to [first contentful paint (FCP)](https://web.dev/fcp/) is also inferior for SPAs. The FCP represents the time that a user has to wait between initially requesting a page, and seeing the actual content of the page for the first time. With an SPA, you usually go through multiple rounds of requests to get to this point. The steps to load an SPA are usually ordered like this:
+
+1. You will usually get back an empty white initial HTML file (✳️ 1).
+2. The HTML file starts grabbing the JavaScript which will [bootstrap](https://en.wikipedia.org/wiki/Bootstrapping) the application.
+3. The loaded application determines what page it should render.
+4. Often times, a developer doesn't want to have to send all the code for the whole website in one bundle, as that will increase start up time. To avoid this, SPAs often implement code splitting by page where each page is hosted on a separate JavaScript bundle. In this case, the renderer will then have to wait for the bundle for the appropriate page to be fetched.
+5. Because SPAs are strictly static files, any data relevant to the current user for the page they're on can now be fetched.
+6. The page can now be rendered as it has all the needed data & scripts.
+
+This process is known to be a bit slow on the user side, as the architecture is kind of like if every time you opened a social media app on your phone, the app needed to be re-downloaded in real time. This can add precious seconds onto the time from which a user clicks on your site, to when they see content. In an attention economy that can see as many as [40% of users bouncing back when encountering a page that takes over 4 seconds to load](https://www.websitebuilderexpert.com/building-websites/website-load-time-statistics/), this kind of performance can really make a difference in the amount of users who actually end up using your site.
+
+## How NextJS improves this
+
+NextJS is a framework built on top of React, and it is the [first recommended way to build a React app](https://react.dev/learn/start-a-new-react-project) on the official React documentation. Next will bootstrap a starter application for you with a few options to add things like TypeScript & Tailwind automatically. Next also offers [a file-based routing system](https://nextjs.org/docs/app/building-your-application/routing) with a built in client-side router which increases page-to-page performance once the app has fully loaded. However, the biggest sell of NextJS and one of it's core founding features is that it offers server-side rendering (SSR) of your React components while still allowing them to remain interactive on the client. The implications of this founding feature allows NextJS to bypass the previously mentioned SEO & FCP limitations of a traditional React SPA. Notably, where React has NextJS all of the other popular JavaScript frameworks have their own variants of this type of framework, Vue having Nuxt, Angular having Angular Universal (or the increasingly popular AnalogJS), Svelte having SvelteKit, and Solid having Solid Start.
+
+So how can NextJS give an application the ability to behave like it is both rendered on the server _and_ on the client? Long story short: it truly just does both. When you request a page from NextJS, Next fetches the initial data that will be required to render that page on the server before it does any rendering, and then constructs the first render for that page while still on the server. Then Next, under the hood, passes that React component tree to a function called `{ renderToString } from "react-dom/server"` (✳️ 2). It then places that HTML string in a greater HTML body and then injects the React application as a script tag as well as an _extra_ script tag labeled `<script id="__NEXT_DATA__" type="application/json">` which contains the async fetched data used to get the first render (this is the data that is returned from `getServerSideProps` or `getStaticProps`).
+
+When the client receives your page, because it has prerendered HTML already available, it is able to render that HTML almost immediately. This means that users requesting a NextJS site are likely going to see and start mentally interpreting content earlier than a React SPA. However, for a brief period of time this page is still not interactive. Any logic that required JavaScript to be run based on user actions (e.g. event handlers) will not work at all. When loading on the client, a function called `{ hydrateRoot } from "react-dom/client"` is called for your components. This process of ["hydration"](https://react.dev/reference/react-dom/client/hydrateRoot) renders your React application but instead of rendering out to an element root, it _attaches_ to the given element root and assumes the HTML under that root is already the same as what it will initially render (if they are not the same then you will get a [hydration error](https://nextjs.org/docs/messages/react-hydration-error)). Once your React app has been hydrated, it starts behaving exactly like an SPA as all client side logic and event handlers get hooked up to the existing elements.
+
+## The problems with the full hydration of the NextJS pages directory
+
+The period of non-interactivity (pre-hydration) can potentially leave a user with a page that looks like it works, but doesn't respond to user interaction for short time. The user could theoretically feel like this is a performance issue with the site or application. However, This period of time is generally considered to be non-problematic and _usually_ to a user's benefit. A user with a quick internet connection can get a readable version of the page quicker and start using the site while the hydration process is happening in the background. Most users aren't going to be needing interactivity in the first second or so as they start navigating a web page as they must first _mentally_ index it.
+
+However, you may have users who know exactly where they're going or what they are doing when the page first loads and may try to click forward pre-interactivity. This may be okay! If a user clicks a link that's rendered as a `Link from "next/link"`, that's generally alright as those links render as plain `<a>` HTML elements pre-hydration, so the user will get the default browser page navigation experience. The user in this scenario may be subjected to multiple full page loads before the SPA router was able to be hydrated but that is generally the worst case scenario for that component. However, if your navigation is hidden in a pop-out menu that requires JavaScript to be opened, the user may click before hydration is complete and be left feeling like the site isn't as responsive as desired.
+
+Alternatively, you may have users on slower internet connections (e.g. mobile or rural). Those users may be waiting tens of seconds between when the page content is available to see and when it is interactive, as the JavaScript associated with a page can often be much larger than the content it is rendering. This is obviously a bad experience and there's not much that you can do to explain to the user that the content isn't interactive yet without throwing out the benefits of SSR for other users.
+
+It could be argued that a plain SPA would have served users better in these scenarios, as even though they may have had to wait a little longer to see content (which some of these users may just be accustomed to), the content would be interactive the moment they can see it. Especially for users with slower internet connections, if they're relying on hydration to interact with the site, an SPA absolutely would have served them better. This is because for every full page load of a hydrated SSR application, the user is being sent upwards of __double the data they actually need to utilize the site.__ The SPA that gets sent alongside a NextJS page response has _everything that is needed to render that page_, so the prerendered HTML content in some scenarios is _just getting in the way_ of the interactive content _becoming interactive._
+
+The slowest part of any web site or application is the process of sending the data over the from the server to the user so any added content is the largest reason why your app may "feel slower." When using a hydration framework like NextJS you should be making that decision with the understanding that the user seeing the initial content of the page is of more initial importance than the user interacting with the page. If that statement doesn't seem correct for your application, you may want consider alternatives to NextJS like boostrapping your React application as an SPA with [Vite](https://vitejs.dev/guide/#scaffolding-your-first-vite-project) while using a separate lightweight SSR application for your SEO focused marketing site.
+
+## React Server Components (RSC)
+
+While the React core team itself hasn't released an SSR framework, everything about React (and `"react-dom"`) has been constructed to consider SSR frameworks and how they may best work with React and how React can better integrate itself with server-driven applications. For instance, the functions to both render React from a server and hydrate that server render on the client come from the `"react-dom"` package which is built by the React core team at Meta.
+
+The React core team has been trying to make better server integrations for a few years at this point. In late 2020, a few members of the core team released a tech talk called ["Data Fetching with React Server Components"](https://www.youtube.com/watch?v=TQQPAU21ZUw) which showcased a very early demo for React Server Components (RSC) using a [public example application](https://github.com/reactjs/server-components-demo). RSC technically hasn't been released officially for use by any framework other than NextJS, however it is it's own application rendering model which is worth discussing separately from NextJS.
+
+RSC is a pattern for pre-rendering a React tree on the server. [RSC, while it can be used with SSR, is not SSR](https://youtu.be/TQQPAU21ZUw?t=1500). When the React tree is sent from the server to the client in RSC, it is sent as a serialized JSON object using the `"react-dom"` internal function [`resolveModelToJSON`](https://github.com/facebook/react/blob/main/packages/react-server/src/ReactFlightServer.js#L791). When the client receives the RSC render object, it passes through and renders every node exactly as passed. So if you had a server component that looked like the code below
+
+<Card withCopy client:idle>
+```tsx
+const Example = ({ data }: { data: string }) => {
+  return (
+    <div className="example" style={{ display: "flex" }}>
+      <span>{data}</span>
+    </div>
+  );
+}
+
+// rendered like this
+const reactTreeToBeRendered = <Example data="hello world!" />
+```
+</Card>
+
+The JSON rendered version of `reactTreeToBeRendered` would look like this
+
+<Card withCopy client:idle>
+```json
+["$","div",null,{"className":"example","style":{"display":"flex"},"children":["$", "span",null,{"children":"hello world!"}]}]
+```
+</Card>
+
+As you can see, everything is still in a React-like format and not HTML. The `className` prop has not been converted to `class` and the `style` prop is still represented as an object rather than a string. When the client receives this data, it converts it back into a React tree on the client and then renders that tree.
+
+Knowing more about how this works, you might wonder how this is better than an SPA, seeing as it still has the fundamental disadvantages in SEO & FCP? The advantage of RSC in this case, is that the JavaScript required to construct the server components is not being sent to the client, just the output of that JavaScript. The client can just receive the end result of the render. This means that far less work has to be done on the client to get a render, which means that FCP can actually be greatly enhanced.
+
+Now, the next question would be how this could be better than the older NextJS hydration model? If RSC removes the dynamic contents from the client, then how do components becomes interactive? The answer to this is with [client components](https://nextjs.org/docs/getting-started/react-essentials#client-components)! Any component exported from a module which has the `"use client";` directive at the top is identified by React as a client component. Any component that is rendered within a client component (not including children) is also considered to be a client component. Client components are special components which will not render on the server _in an RSC render_. When the `resolveModelToJSON` function reaches a client component during tree serialization, it instead marks it with the metadata required to be able to fetch the bundle containing that component. The advantage of not pre-rendering the client component on the server is that you don't have to send any excess data to represent the client component. You only have to send its serialized props and the component itself. If it were prerendered then you'd be sending extra data to represent its first render and then you'd still have to fetch it before it could become interactive. When the client is reconstructing the React tree from the serialized model and it hits a client component, it begins a fetch for that component and prepares it to be mounted when the fetch is complete while continuing to render the rest of the tree.
+
+The extra benefit of having the the server render as a serialized React tree is that the client has a full VDOM model as if the app was always an SPA. This means that if the server component tree updates, the client component state & hooks are actually maintained. If the application navigates on the client and sends that navigation state as query params to the server to get a new server render, you can just get an updated React tree back without a full real navigation.
+
+## RSC integration in NextJS
+
+So how does RSC work in NextJS while maintaining the SEO & FCP advantages of older versions of NextJS that used SSR? Well, it just does both again. NextJS will run an HTML render of the whole component tree, __including client components in their initial state.__ This means that when you use NextJS, it still acts very similar to how it used to. However, it effectively renders twice on the server. The first render is the HTML pass of the tree with all server & client components. The second pass is the RSC serialization of that tree. Then Next sends the HTML body with scripts tags attached with the RSC serialization (✳️ 3). Once the client has this data, rather than mounting the content to an empty DOM like would happen in a more barebones RSC application, NextJS hydrates the full RSC render onto the existing DOM including the interactivity of the client components.
+
+## Is it worth it to just go back to the NextJS pages directory model and avoid this complexity entirely?
+
+It's reasonable to look at this solution and wonder if this is really worth the hassle. This is a lot of complexity to manage. Is there really that much data being saved by having more server components and less client components if the client still has to receive the whole HTML render _as well as_ the RSC serialization? I think this is a reasonable concern and an understandable response to think that maybe it would be better to stick with the pages directory. In practice, I do personally find the featured ability to maintain client state between server rerenders to be somewhat unwieldy as it starts to feel like if you're going to rerender something at all, that something should probably just be a client component.
+
+However, I would heavily recommend moving code towards the app directory as it actually offers far more features than just RSC. The app directory has a new great [model for rendering per-page metadata](https://nextjs.org/docs/app/building-your-application/optimizing/metadata), it offers [nested layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts), it offers [route groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups) for better control over your layouts, it offers [server actions (beta)](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions), it allows you to have [API endpoints](https://nextjs.org/docs/app/building-your-application/routing/router-handlers) that can exist on any path and not just paths prefixed with `/api`, and maybe most notably it allows you to have components alongside your pages as the routing model won't mix up arbitrary component files with page on routes. NextJS has promised that the pages directory is not going to even be deprecated any time soon, but the app directory looks like it's the only part of NextJS getting new features going forward.
+
+More than this however, RSC really doesn't have to add any complexity to your code. There seems to be a frustration in the React & NextJS communities from developers who are annoyed and struggling with how to optimize server components and have considered going back to the pages directory. However, the pages directory doesn't necessarily render your content very differently. The way the pages directory works is effectively like if you just rendered a client component at the root of your page. So if you're fed up with thinking about client & server components, just do that. It will effectively behave exactly the same as the pages directory.
+
+Here's the simplest example of a pages directory to app directory page conversion with no concern for a change of behavior.
+
+<Card withCopy client:idle>
+```tsx
+// pages/index.tsx
+import type { InferGetServerSidePropsType, GetServerSideProps } from "next"; 
+import { HomePage } from "../components/HomePage";
+import { cmsClient, type HomePageData } from "../services/cmsClient";
+
+export default function Page({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  <HomePage data={data} />
+}
+
+export const getServerSideProps: GetServerSideProps<{ data: HomePageData }>() {
+  const data = await cmsClient.getHomePageData();
+  return { props: { data } };
+}
+
+// components/HomePage.tsx
+import { type HomePageData } from "../services/cmsClient";
+
+export const HomePage = ({ data }: { data: HomePageData }) => {
+  // render page here
+}
+```
+</Card>
+
+Notice how complex the types are to pass around and validate? Here's the same code with the same level of type safety in the app directory with the same behavior.
+
+<Card withCopy client:idle>
+```tsx
+// app/page.tsx
+import { HomePage } from "./_components/HomePage";
+import { cmsClient } from "../services/cmsClient";
+
+export default async function Page() {
+  return <HomePage data={await cmsClient.getHomePageData()} />
+}
+
+// app/_components/HomePage.tsx
+"use client";
+import { type HomePageData } from "../services/cmsClient";
+
+export const HomePage = ({ data }: { data: HomePageData }) => {
+  // render page here
+}
+```
+</Card>
+
+This code is cleaner, simpler, _actually_ type-safe, allows for the `HomePage` component to be placed in a scope that's next to the only route it's used in, and will give the same experience of building out the `HomePage` component to the developer. With the advantages gained here, versus the small consideration of having to add `"use client";` to the top of your root component, I think switching to the app directory is a no-brainer.
+
+## How you can optimize your use of RSC in NextJS
+
+The obvious answer here is: make more server components and less client components. If your React application is a tree, then you should try to [keep your client components as close to the leaves as possible](https://nextjs.org/docs/app/building-your-application/routing#terminology) because everything declared under a client component is a client component. But sometimes that can be challenging, even for websites that host what is publicly seen as "static content."
+
+### RSC optimization case study: [cakeelizabeth.com](https://cakeelizabeth.com)
+
+Many sites built in NextJS are effectively "blogs" that host articles for end users to consume. However, the other end of users for these blogs is content writers. Often, content writers want to be able to draft their content and see it update in real time with tools like [Sanity's previews](https://www.sanity.io/docs/preview-content-on-site) or [the TinaCMS visual editing](https://tina.io/docs/contextual-editing/router/). If you need content to be capable of rendering in real time, then generally you need a client component that passes the content down to the component as state. But _most users_ will never need the state to update!
+
+So how can we make a component that is sometimes a client component and sometimes a server component? Well, if we follow the rules of client components, this is actually quite easy. All you need to do is build the body of your page in such a way that it takes the data that it renders as a prop. Then when a when a regular user visits your site, you fetch the data once and pass the data down to this body component. There's no client components in this model, and so this model is never hydrated and sends no components to the client. However, if a content editor visits the site in the editing mode, then the site will render on the server by wrapping this page body component in a client component (with `"use client"` marked) that is able to fetch the initial data and render the content editors updates.
+
+You might wonder how we would actually go about differentiating between the render modes of content writers & consumers on the server. The proper answer to this question is to use `{ draftMode } from "next/headers"`. Draft mode is a state that is managed by a server-side cookie. All pages generated by SSR/SSG/ISR will assume by default that `draftMode().isEnabled === false`. If you have cached pages through SSG/ISR but you have a `draftMode` cookie attached to your request, you will bypass the cache and get a unique server render per request. This allows you to get the fastest renders to your content consuming users, while your content writers get a fully dynamic response. The state of `draftMode().isEnabled` can be updated by running `draftMode().enable()` or `draftMode().disable()` in any server component, `route.ts` request, or server action.
+
+In the [repository for the website](https://github.com/EthanStandel/cakeelizabethdotcom) of my wife's business, [Cake Elizabeth](https://cakeelizabeth.com/), I created a series of wrapper components that make this process very repeatable. The model is two components exported under one title. The first component is a server component called [`LiveContentDataServer`](https://github.com/EthanStandel/cakeelizabethdotcom/blob/main/src/utils/LiveContentData/LiveContentDataServer.tsx) which takes in a component to render as well as as the content type name that the page needs. The server component checks if `draftMode().isEnabled`.
+
+If you are a regular consuming user and `draftMode().isEnabled === false` then the server component just fetches the content data that the component needs and then passes it to that component and renders it. 
+
+If you are a content writer and `draftMode().isEnabled` then everything gets passed down to a render of another component called [`LiveContentDataClient`](https://github.com/EthanStandel/cakeelizabethdotcom/blob/main/src/utils/LiveContentData/LiveContentDataClient.tsx) along with the initial render of the data. The client component takes the initial data render and passes it into a hook that is prepared to listen for subsequent data updates. That hook re-returns the initial data on the server (for the Next HTML render) and _that_ instance of the data is passed down into the component that was passed forward from `LiveContentDataServer` and all rendered together. Now, because the passed component is being rendered in `LiveContentDataClient` which is a client component, it is rendered as a client component.
+
+There is one unfortunate catch for this model. If the `component` prop that is passed to `LiveContentDataServer` is not a client component, then there must be a client component wrapper around it. A slight limitation with this pattern in use with RSC is that I need to be able to pass an un-rendered component function from a server component to a client component. This works fine _if I'm passing a client component._ But client components __can not be constructed dynamically, they must be statically analyzable by the NextJS compilation process.__ This leaves implementations of this pattern looking like this.
+
+<Card withCopy client:idle>
+```tsx
+// src/app/(main)/page.tsx
+import { getPageMetadataGenerator } from "../../utils/content";
+import { LiveContentData } from "../../utils/LiveContentData";
+import { HomePage } from "./_components/Home/HomePage";
+import { HomePageClient } from "./_components/Home/HomePageClient";
+
+const Page = () => (
+  <LiveContentData
+    component={HomePage}
+    clientWrapper={HomePageClient}
+    type={["HomePageCollection", "ProductPageCollectionConnection"] as const}
+  />
+);
+
+export default Page;
+
+export const generateMetadata = getPageMetadataGenerator(
+  "HomePageCollection",
+  "/"
+);
+```
+</Card>
+
+In this example the `HomePage` component is exactly as previously described, being a dumb component that just renders the page by taking the data in as a `data` prop. The `HomePageClient` component is the most barebones possible client component wrapper around `HomePage`, looking like the following.
+
+<Card withCopy client:idle>
+```tsx
+// src/app/(main)/_components/Home/HomePageClient.tsx
+"use client";
+
+import type { ComponentProps } from "react";
+import { HomePage } from "./HomePage";
+
+export const HomePageClient = (props: ComponentProps<typeof HomePage>) => (
+  <HomePage {...props} />
+);
+```
+</Card>
+
+This does some damage to the integrity of this pattern by requiring code repetition on every page utilizing `LiveContentData`. However, depending on your use case, this verbosity is a small trade for the advantages of having consistent server renders. In the case of this particular application, the use of RSC is helping the application to avoid hydrating some fairly complex and large structures including all of the content data that doesn't get rendered, the component tree and associated JavaScript for rendering the markdown content, as well as the `useContentData` hook which has the CMS communication client logic. To be able to remove all of that code for most users will be worth it in the long run.
+
+## Alternatives to React Server Components and partial hydration
+
+RSC is not the first solution to partial hydration, though all comparisons have their advantages and disadvantages in certain scenarios. Here's a crash course on some of the best implementations of this pattern.
+
+### The Astro approach to partial hydration
+
+Pages in the [Astro](https://astro.build/) framework must be [Astro (*.astro) components](https://docs.astro.build/en/core-concepts/framework-components/) as the root which can only render statically. When you need dynamic content, you can simply utilize a React, Vue, Svelte, or SolidJS component using [one of Astro's available plugins for those frameworks](https://docs.astro.build/en/core-concepts/framework-components/). When loading a non-astro component, it will be wrapped in an `<astro-island>` [web component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components). The `<astro-island>` component has the code required to hydrate the alternate framework component over the prerendered content within that element. This has the benefit of not having to send the resolved application tree twice, unlike RSC. However, because there is not one application in charge of the document tree, it becomes tough to support something like a client-side router, [though Astro has its own solution to this problem](https://github.com/withastro/roadmap/issues/532).
+
+### The Fresh approach to partial hydration
+
+The Deno framework [Fresh](https://fresh.deno.dev/) has an incredibly similar looking architecture to a combination of the NextJS app & pages directory, though it uses [Preact](https://preactjs.com/) rather than React. In Fresh, to make a hydratable component, that component's module must live under the `/islands` directory. So a component exported from the `/islands` directory effectively acts like a React client component with `"use client"` at the top. Components which aren't in this directory will be treated as server-only render when utilized in other components or a client render when utilized inside of an island, just like RSC. However, the core difference again is in the method of hydration. Fresh, like Astro, does not have to send the resolved tree twice. Fresh does the full initial render, including islands, in HTML. Inside the HTML response are comments wrapping around where the islands must be hydrated, often called "virtual nodes." When Fresh hydrates, it queries the DOM for these special comments and then hydrates the space between those comments. Fresh also allows for hydration of state using [Preact signals](https://preactjs.com/guide/v10/signals/). If a signal is declared in a non-island but it is passed to multiple islands, the same state instance is shared between all islands. Fresh's solution is incredibly witty but again doesn't have the Preact framework in full control of the DOM and thus doesn't support client-side routing or natively tupdating server content without resetting local state.
+
+### The Qwik solution to partial hydration, or rather "resumability"
+
+[Qwik](https://qwik.builder.io/) might be the most unique existing solution for partial hydration. In fact, Qwik's architects would argue that it _does not hydrate at all_ but performs it's own solution to "SSR but with interactivity" called [resumability](https://www.builder.io/blog/resumability-vs-hydration). Qwik is in fact it's own rendering framework, so it doesn't use React though it does use JSX templating and function components to keep [a similar developer experience to React](https://qwik.builder.io/docs/guides/react-cheat-sheet/#react-vs-qwik). Resumability empowers Qwik to share state between the client and server via many framework driven attributes added to the HTML elements in the server-side render. In the end, Qwik is able to only render logic and state with no actual full "components" making it to the client at all. It uses a compiler which finds the relevant logic that will be needed for interactivity and _only_ sends that to the browser. This makes Qwik the ideal solution to this problem in general because it's the "magic" solution that only sends the JavaScript that you use! This however, leaves Qwik with the same problems that always exist with _too much magic._ [When the magic breaks, it's really hard to determine what went wrong and if it's your fault, or the framework.](https://www.youtube.com/watch?v=uXCipjbcQfM&t=1328s) And if it's that unclear, [you could probably safely blame the framework anyways.](https://99percentinvisible.org/article/norman-doors-dont-know-whether-push-pull-blame-design/)
+
+## Final thoughts
+
+Partial hydration is an interesting problem that is the primary focus of many brilliant engineers. React server components are an interesting solution to the problem, that make for an extensible solution that makes few sacrifices in architecture & extensibility for what could be seen as a major sacrifice in final bundle size. All of these solutions have positives and negatives. The choice to integrate this technology into NextJS seems to be the right direction for the relationship between React & NextJS. If you're intending on building an application with NextJS then I would recommend using the app directory, whether or not you maximize on the potential performance gains of RSC. But if you're considering looking into other frameworks, I would try to keep an eye out for frameworks which let you utilize partial hydration.
+
+## ✳️ Notes
+
+1. Rather than showing a blank white page for initial SPA loads, you could put some kind of loading animation or icon, but adding that to your initial HTML is just more resources that must be fetched before the page is able to load.
+2. Next actually uses `{ renderToPipeableStream } from "react-dom/server"` which allows the server to send chunks of the HTML content while the tree is still in the rendering process which can slightly decrease latency.
+3. Technically this work is not fully sequential as the `renderToPipeableStream` function allows NextJS to start returning data to the user while it's still working on the render. Though, if the page is being loaded with SSG/ISR, then the user is just receiving a cached version of the page anyways and the order of operations here is mostly irrelevant.

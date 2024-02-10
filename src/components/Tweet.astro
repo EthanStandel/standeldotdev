@@ -1,0 +1,20 @@
+---
+
+---
+
+<div class="tweet-parent">
+  <slot />
+</div>
+<style lang="scss" is:global>
+  .tweet-parent {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > * {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  }
+</style>
