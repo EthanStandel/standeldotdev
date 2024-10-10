@@ -1,4 +1,4 @@
-# [standel.io](https://standel.io)
+# [standel.dev](https://standel.dev)
 
 This site is just a fun little passion project so please don't judge it too harshly.
 I'm using this site as a technology playground where I can deploy the "move fast and break things" mentality.
