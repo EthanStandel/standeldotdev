@@ -7,12 +7,16 @@ import LinkedIn from "@fortawesome/fontawesome-free/svgs/brands/linkedin.svg?raw
 import Phone from "@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw";
 import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
 ---
+
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>Resume</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="container">
@@ -22,14 +26,24 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
             <img src="/headshot.jpeg" />
           </div>
           <div class="text">
-            <h1 class="name">
-                Ethan Standel
-            </h1>
-            <h2 class="title">
-              Senior software developer
-            </h2>
+            <h1 class="name">Ethan Standel</h1>
+            <h2 class="title">Senior software developer</h2>
             <p class="about-me">
-              Hi, my name is Ethan! I'm a fullstack software developer focussing on building applications & systems that provide a unique challenge. I love building systems with strict, interesting, thoughtful, or just plain fun requirements in the areas of aesthetic, behavior, scalability, performance, accessibility, internationalization, or themability. I value developer experience, automated workflows, and shipping code. Hopefully your organization is looking for developers who share my interests and values! <strong class="no-print">I also happen to love cotton-candy color themes, but to preserve your printer ink this can only be read on the web and this document will always print in black & white with no headshot!</strong>
+              Fullstack software developer focussing on building applications &
+              systems that require a unique challenge. I love building systems
+              with strict, interesting, thoughtful, or just plain fun
+              requirements in the areas of aesthetic, behavior, scalability,
+              performance, accessibility, internationalization, or themability.
+              I value developer experience, automated workflows, and shipping
+              code. Hopefully your organization is looking for developers who
+              share my interests and values!
+
+              <strong class="no-print"
+                >I also happen to love cotton-candy color themes, but to
+                preserve your printer ink this can only be read on the web and
+                this document will always print in black & white with no
+                headshot!</strong
+              >
             </p>
           </div>
         </div>
@@ -38,7 +52,7 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
           <ul class="left">
             <li>
               <Fragment set:html={Email} />
-              <p><a href="mailto:ethan@standel.io">ethan@standel.io</a></p>
+              <p><a href="mailto:ethan@standel.dev">ethan@standel.dev</a></p>
             </li>
             <li>
               <Fragment set:html={Phone} />
@@ -56,11 +70,19 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
             </li>
             <li>
               <Fragment set:html={Github} />
-              <p><a href="https://github.com/EthanStandel">github.com/EthanStandel</a></p>
+              <p>
+                <a href="https://github.com/EthanStandel"
+                  >github.com/EthanStandel</a
+                >
+              </p>
             </li>
             <li>
               <Fragment set:html={LinkedIn} />
-              <p><a href="https://www.linkedin.com/in/ethan-standel/">linkedin.com/in/ethan-standel</a></p>
+              <p>
+                <a href="https://www.linkedin.com/in/ethan-standel/"
+                  >linkedin.com/in/ethan-standel</a
+                >
+              </p>
             </li>
           </ul>
         </div>
@@ -72,17 +94,61 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
               <h4>Software engineer to Senior software engineer</h4>
               <h5>DEPT® - May 2021 to present</h5>
               <ul class="history-details">
-                <li>Worked with my first client in 2021 to transition their site from full CMS to NextJS with a headless CMS. Integrated SSO authentication and built full account management microfrontend.</li>
-                <li>Worked with my second client in 2022 to transition their legacy application to a new React application utilizing federated modules to support multi-team scalability. Integrated SSO authentication and helped build out account management microfrontend. Helped to architect internal design system & component library. Fully built new header, footer, menu, and search components.</li>
+                <li>
+                  Worked with my first client transition their site from full a
+                  CMS to NextJS with a headless CMS. Integrated SSO
+                  authentication and built full account management
+                  microfrontend.
+                </li>
+                <li>
+                  Helped a client to transition their legacy application to a
+                  new React application utilizing federated modules to support
+                  multi-team scalability. Integrated SSO authentication and
+                  helped build out account management microfrontend. Also led
+                  architecture for their internal design system & component
+                  library. Fully built new header, footer, menu, and search
+                  components.
+                </li>
+                <li>
+                  Worked with a client to build out their new marketing site,
+                  maximizing on performance, analytics integrations, and
+                  animations.
+                </li>
+                <li>
+                  Built out user portal for accessing services based on
+                  location, and built custom Google Maps integrations.
+                </li>
+                <li>
+                  Built an application for processing documents and utilizing AI
+                  to get synopsis and analysis of documents.
+                </li>
+                <li>
+                  Built a fullstack application to support a previously paper
+                  application process. Designed database to support infinite
+                  historic change tracking.
+                </li>
               </ul>
             </li>
             <li class="history-item">
               <h4>Software engineer I to Software engineer II</h4>
               <h5>Wex® - May 2017 to May 2021</h5>
               <ul class="history-details">
-                <li>Developed mobile applications using Ionic, Cordova, and Angular. Integrated features like location services and live notifications. Supported with microservices written with Java + Spring.</li>
-                <li>Built an ecommerce site using Angular + Material Design. Integrated third & first party APIs using BFF microservice model.</li>
-                <li>Helped architect and build a system for incrementally upgrading a legacy application to newer technologies. Integrated new SSO authentication system</li>
+                <li>
+                  Developed mobile applications using Ionic, Cordova, and
+                  Angular. Integrated features like location services and live
+                  notifications. Supported with microservices written with Java
+                  + Spring.
+                </li>
+                <li>
+                  Built an ecommerce site using Angular + Material Design.
+                  Integrated third & first party APIs using BFF microservice
+                  model.
+                </li>
+                <li>
+                  Helped architect and build a system for incrementally
+                  upgrading a legacy application to newer technologies.
+                  Integrated new SSO authentication system
+                </li>
               </ul>
             </li>
             <li class="history-item education">
@@ -90,217 +156,253 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
               <h4>Bachelors of Science in Computer Science</h4>
               <h5>University of Southern Maine - Sept 2013 to May 2017</h5>
               <ul class="history-details">
-                <li>Studied lower level engineering, computer mechanics, operating systems, algorithms, and data structures.</li>
+                <li>
+                  Studied lower level engineering, computer mechanics, operating
+                  systems, algorithms, and data structures.
+                </li>
               </ul>
             </li>
             <li class="history-item oss">
               <h3>OSS & side projects</h3>
               <ul class="history-details">
-                <li><a href="https://www.npmjs.com/package/@deepsignal/react">@deepsignal/react</a> is a state management library I built around <a href="https://www.npmjs.com/package/@preact/signals">@preact/signals</a>. If used correctly, it could be the fastest React state management library due to the <a href="https://engineering.deptagency.com/why-i-built-a-new-state-management-library">signal primitive's bypass of the VDOM</a></li>
-                <li><a href="https://cakeelizabeth.com/">cakeelizabeth.com</a> is the website for my wife's bakery, written in NextJS</li>
-                <li><a href="https://www.npmjs.com/package/solid-joystick">solid-joystick</a> is a pluggable joystick component that I built for SolidJS which has has support for multi-touch, mouse-drag, pointer-lock, WASD keys, and physical gamepads</li>
+                <li>
+                  <a href="https://www.npmjs.com/package/@deepsignal/react"
+                    >@deepsignal/react</a
+                  > is a state management library I built around <a
+                    href="https://www.npmjs.com/package/@preact/signals"
+                    >@preact/signals</a
+                  >. If used correctly, it could be the fastest React state
+                  management library due to the <a
+                    href="https://engineering.deptagency.com/why-i-built-a-new-state-management-library"
+                    >signal primitive's bypass of the VDOM</a
+                  >
+                </li>
+                <li>
+                  <a href="https://cakeelizabeth.com/">cakeelizabeth.com</a> is the
+                  website for my wife's bakery, written in NextJS
+                </li>
               </ul>
             </li>
           </ul>
         </div>
         <div class="about-resume">
-          <p>This resume was written entirely in HTML & CSS. See it live at <a href="https://www.standel.dev/resume">standel.dev/resume</a> or see the source code at <a href="https://www.standel.dev/resume-src">standel.dev/resume-src</a></p>
+          <p>
+            This resume was written entirely in HTML & CSS. See it live at <a
+              href="https://www.standel.dev/resume">standel.dev/resume</a
+            > or see the source code at <a
+              href="https://www.standel.dev/resume-src"
+              >standel.dev/resume-src</a
+            >
+          </p>
         </div>
       </div>
     </div>
-  </body>
-</html>
-<style lang="scss" is:global define:vars={{ check: `url("${Check}")` }}>
-  html, body {
-    --primary: #ff00aa;
-    --secondary: #0080ff;
-    --dark: #1f1f1f;
-    --light: #4d4d4d;
-    --lighter: #686868;
-    --highlight: #f0ffff;
-    @media print {
-      --primary: var(--dark);
-      --secondary: var(--dark);
-      --highlight: transparent;
+    <style lang="scss" is:global define:vars={{ check: `url("${Check}")` }}>
+      html,
+      body {
+        --primary: #ff00aa;
+        --secondary: #0080ff;
+        --dark: #1f1f1f;
+        --light: #4d4d4d;
+        --lighter: #686868;
+        --highlight: #f0ffff;
+        @media print {
+          --primary: var(--dark);
+          --secondary: var(--dark);
+          --highlight: transparent;
 
-      .no-print {
-        display: none !important;
-      }
-    }
-    font-family: 'Poppins', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: black;
-    margin: 0;
-    min-height: 100vh;
-    width: 100%;
-
-    .container {
-      width: 8.5in;
-      height: 11in;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .content {
-      margin: .5in;
-      text-align: justify;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-
-      a {
-        color: var(--secondary);
-        text-decoration: none;
-      }
-
-      .intro {
+          .no-print {
+            display: none !important;
+          }
+        }
+        font-family: "Poppins", sans-serif;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 1em;
+        justify-content: center;
+        background: black;
+        margin: 0;
+        min-height: 100vh;
         width: 100%;
 
-        h1.name {
-          @media not print {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-        }
-
-        .headshot {
-          border: .5em solid var(--primary);
-          height: 9em;
-          width: 9em;
-          border-radius: 5em;
-          display: inline-block;
-
-          > img {
-            height: 9em;
-            width: 9em;
-            border-radius: 4.5em;
-            object-fit: cover;
-            @media print {
-              filter: grayscale(100%);
-            }
-          }
-        }
-
-        .text {
+        .container {
+          width: 8.5in;
+          height: 11in;
+          background: white;
           display: flex;
           flex-direction: column;
-          gap: .25rem;
         }
 
-        .name, .title, .about-me {
-          margin: 0;
-          line-height: 1.15;
-        }
+        .content {
+          margin: 0.5in;
+          text-align: justify;
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
 
-        .title {
-          color: var(--light);
-        }
+          a {
+            color: var(--secondary);
+            text-decoration: none;
+          }
 
-        .about-me {
-          font-size: 9pt;
-        }
-      }
-
-      .contact {
-        padding-top: .5em;
-        padding-bottom: .5em;
-        padding-left: .5in;
-        padding-right: .5in;
-        background: var(--highlight);
-        margin-left: -.5in;
-        margin-right: -.5in;
-        margin-top: .5em;
-        margin-bottom: .5em;
-        display: flex;
-        ul {
-          width: 50%;
-          list-style-type: none;
-          margin: 0;
-          padding: 0;
-          li {
+          .intro {
             display: flex;
             align-items: center;
             gap: 1em;
+            width: 100%;
+
+            h1.name {
+              font-size: 22pt;
+              line-height: 1;
+              @media not print {
+                background: linear-gradient(
+                  to right,
+                  var(--primary),
+                  var(--secondary)
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+              }
+            }
+
+            .headshot {
+              border: 0.5em solid var(--primary);
+              height: 9em;
+              width: 9em;
+              border-radius: 5em;
+              display: inline-block;
+
+              > img {
+                height: 9em;
+                width: 9em;
+                border-radius: 4.5em;
+                object-fit: cover;
+                @media print {
+                  filter: grayscale(100%);
+                }
+              }
+            }
+
+            .text {
+              display: flex;
+              flex-direction: column;
+              gap: 0.25rem;
+            }
+
+            .name,
+            .title,
+            .about-me {
+              margin: 0;
+              line-height: 1.15;
+            }
+
+            .title {
+              color: var(--light);
+            }
+
+            .about-me {
+              font-size: 9pt;
+            }
           }
-        }
-        p {
-          margin: 0;
-          line-height: 2.5;
-          font-size: 10pt;
-        }
-        svg {
-          height: 25px !important;
-          width: 25px !important;
-          fill: var(--primary) !important;
-        }
-      }
 
-      .work-history {
-        > ul {
-          list-style-type: none;
-          margin: 0;
-          padding: 0;
-        }
+          .contact {
+            padding-top: 0.25em;
+            padding-bottom: 0.25em;
+            padding-left: 0.5in;
+            padding-right: 0.5in;
+            background: var(--highlight);
+            margin-left: -0.5in;
+            margin-right: -0.5in;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            display: flex;
+            ul {
+              width: 50%;
+              list-style-type: none;
+              margin: 0;
+              padding: 0;
+              li {
+                display: flex;
+                align-items: center;
+                gap: 0.5em;
+              }
+            }
+            p {
+              margin: 0;
+              line-height: 2.25;
+              font-size: 10pt;
+            }
+            svg {
+              height: 25px !important;
+              width: 25px !important;
+              fill: var(--primary) !important;
+            }
+          }
 
-        ul.history-details {
-          list-style-image: var(--check);
+          .work-history {
+            > ul {
+              list-style-type: none;
+              margin: 0;
+              padding: 0;
+            }
 
-          li{
-            margin-top: .5em;
-            &::marker {
-              font-size: 1.5em;
-              // all other browsers plus Chromium printout act like this is the default
-              line-height: 0;
+            ul.history-details {
+              padding-inline-start: 20px;
+              list-style-image: var(--check);
+
+              li {
+                margin-top: 0.25em;
+                &::marker {
+                  font-size: 1.5em;
+                  // all other browsers plus Chromium printout act like this is the default
+                  line-height: 0;
+                }
+              }
+            }
+
+            h3,
+            h4,
+            h5,
+            p {
+              margin: 0;
+              line-height: 1.5;
+            }
+            h4 {
+              color: var(--light);
+            }
+            h5 {
+              color: var(--lighter);
+            }
+            p {
+              font-size: 11pt;
+            }
+            .history-item {
+              .history-details {
+                font-size: 10pt;
+                line-height: 1.25;
+                margin-bottom: 0.5em;
+              }
+            }
+          }
+
+          .about-resume {
+            font-size: 8pt;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            text-align: center;
+            flex-grow: 1;
+
+            > * {
+              max-width: 70%;
+            }
+            p {
+              margin: 0;
+              line-height: 1.15;
             }
           }
         }
-
-        h3, h4, h5, p {
-          margin: 0;
-          line-height: 1.5;
-        }
-        h4 {
-          color: var(--light);
-        }
-        h5 {
-          color: var(--lighter);
-        }
-        p {
-          font-size: 11pt;
-        }
-        .history-item {
-          .history-details {
-            font-size: 10pt;
-            line-height: 1.25;
-            margin-bottom: .5em;
-          }
-        }
       }
-
-      .about-resume {
-        font-size: 8pt;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        text-align: center;
-        flex-grow: 1;
-
-        > * {
-          max-width: 70%;
-        }
-        p {
-          margin: 0;
-          line-height: 1.15;
-        }
-      }
-    }
-  }
-</style>
+    </style>
+  </body>
+</html>
