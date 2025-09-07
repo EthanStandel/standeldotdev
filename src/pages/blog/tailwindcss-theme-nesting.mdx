@@ -1,0 +1,161 @@
+---
+layout: ../../components/Layout/Layout.astro
+title: The problem with nesting theme variants in TailwindCSS, and how you'll eventually be able to fix it
+description: Nesting multiple dynamic theme variants wasn't previously possible in TailwindCSS. But thanks to a new CSS feature, it will be soon!
+date: 9.07.25
+categories:
+  - CSS
+  - TailwindCSS
+---
+
+import { Card } from "../../components/Card";
+
+TailwindCSS does a fantastic job of organizing malleable configuration for development teams and allows for building out reusable design systems, allowing new developers to get up and running quickly. But because TailwindCSS entirely circumvents a large part of the complexity of CSS (the whole "_cascade_" part), it can't necessarily always match the power of CSS pound-for-pound. But there's a cool upcoming CSS feature that will soon close one of the more problematic capability gaps that I've encountered.
+
+## The problem
+
+If you visit [the TailwindCSS documentation for how to represent dynamic theming (e.g. dark & light mode)](https://tailwindcss.com/docs/dark-mode), you'll see an arguably misleading example.
+
+[![TailwindCSS documentation for dark-mode, as of 09/07/25](/tailwindcss-theme-nesting-assets/tailwindcss-docs.png)](https://tailwindcss.com/docs/dark-mode)
+
+This shows the TailwindCSS documentation site, which by default renders in either light-mode or dark-mode depending on the viewer's system theme as reported by their browser. But inside of the docs site, there is an example with associated code for how to handle a light-theme as opposed to a dark theme with code to match. This might lead you to assume that it is safely possible to _nest content of one theme inside of content of another theme_. As that's what must be happening on the TailwindCSS documentation site, as you can see the dark-mode website rendering a light-mode card.
+
+The problem here is that the TailwindCSS site is actually lying to the reader. The code below the example is not actually what's running on the example itself at all. If you inspect each card, you'll see that they are actually entirely different component instances with entirely separate TailwindCSS classes, not using a `dark:` or `light:` variant system at all.
+
+As it turns out, nesting themes in TailwindCSS hasn't actually been possible historically. TailwindCSS's recommended solution to multiple theme variants is all-or-nothing, only allowing one active theme at a time. The recommended configurations look like one the following two options.
+
+> **Side note:** The configurations seen in the documentation exlusively uses a shorthand syntax equivalent to what's seen below, but I find the expanded syntax to be more explanatory to what a variant selector is representing. This expanded syntax is only necessary if your variant uses multiple selectors with each variant needing multiple instances of `@slot`.
+
+<Card withCopy client:idle>
+```css
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    @slot;
+  }
+}
+@custom-variant light {
+  @media (prefers-color-scheme: light) {
+    @slot;
+  }
+}
+```
+</Card>
+
+This first option prescribes the proper theme to the user based on their system settings. This is effectively how the TailwindCSS documentation site works.
+
+<Card withCopy client:idle>
+```css
+@custom-variant dark {
+  &:where(.dark, .dark *)) {
+    @slot;
+  }
+}
+@custom-variant light {
+  &:where(.light, .light *))
+    @slot;
+  }
+}
+```
+</Card>
+
+This options would allow the theme choice to be made and dynamically updated by users, by assigning a `.dark` or `.light` class to a root document element, e.g. `<body>`.
+
+And of course, you can combine both options by prescribing the default applied class based on the result of calling `window.matchMedia("(prefers-color-scheme: dark)")` from JavaScript.
+
+However, all of these solutions still have the same problem of not supporting nesting. Of course, the `@media` queries all represent a document-wide setting for your whole page. But the class solution also has the same limitations. You might think that you could nest use of the theme classes, e.g.
+
+<Card withCopy client:idle>
+  ```tsx
+  <body class="light">
+    <CardComponent />
+    <CardComponent class="dark" />
+  </body>
+  ```
+</Card>
+
+However, the problem here is that the `<CardComponent>` with the `.dark` class is _also_ underneath the `.light` class. So the styles of **both** variants will apply. This creates undefined behavior in TailwindCSS where the styles which _actually_ get applied is whichever classes are resolved last in the generated output CSS, and TailwindCSS cannot guarantee a generation order. Which means that in this example you'll likely get a combination of the styles of multiple themes. The problem is that CSS has historically lacked a selector to identify _proximity_, e.g. "prefer this selector because this class is closer to the target element."
+
+## The solution
+
+A somewhat recent CSS update has added a new feature called [Container Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries). This new tool gives developers a bunch of cool new powers for selectors in CSS. However, the specific features which I've found to be the most revolutionary is [Container Style Queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_size_and_style_queries#container_style_queries). This API gives us the ability to create a selector that applies styles based upon the value of a particular property. And because the values of properties are inherited by default, this means that we have the ability to bypass the former limitation and do proximity-based-selectors!
+
+So in TailwindCSS, we can create this new configuration!
+
+<Card withCopy client:idle>
+```css
+.dark {
+  --theme: dark;
+}
+
+@custom-variant dark {
+@container style(--theme: dark) {
+@slot;
+}
+}
+
+.light {
+--theme: light;
+}
+
+@custom-variant light {
+@container style(--theme: light) {
+@slot;
+}
+}
+
+````
+</Card>
+
+This new configuration allows for the `CardComponent` example above to run as expected. For any element under the `.light` class, the value of `--theme` will be `light`. If a different theme class is nested between the `.light` class and any other element, for all elements below the nearest theme class, their `--theme` value will properly match that nearest class. So we no longer have the problem of nested themes being beholden to the styles of all parenting variant selectors!
+
+Here's [a running example of _the actual code from the TailwindCSS documentation_ working as it should](https://stackblitz.com/edit/nested-themes-showcase?file=src%2FApp.tsx&terminal=dev)!
+
+## The problems _with the solution_
+
+So based on the existance of the example linked above, you might wonder why we can't use this solution right now. Unfortunately this API is very new and is still being implemented in it's entirety in browsers.
+
+[![caniuse.com support matrix for CSS Container Queries, as of 09/07/25](/tailwindcss-theme-nesting-assets/caniusedotcom.png)](https://caniuse.com/css-container-queries-style)
+
+If you check the [caniuse.com support matrix](https://caniuse.com/css-container-queries-style), it's not looking great. But it's also not entirely as bleak it it looks upon first glance. Notably, no browsers identify as fully supporting the feature, but oddly, it doesn't matter. What most browsers decidedly do not support is selecting based on the value of native CSS properties. But what they _do_ support is selectors based upon custom-properties (or CSS variables). So that is to say, if you wanted to get tricky and define your dark mode selector like the following, it wouldn't work in any browser currently.
+
+<Card withCopy client:idle>
+```css
+.dark {
+  background: black;
+  color: white;
+}
+
+@custom-variant dark {
+  @container style(color: white) {
+    @slot;
+  }
+}
+````
+
+</Card>
+
+It seems that browser developers have deemed the need for this to be such an edge case that the priority on this sub-feature has been specifically identified as very low. Even as things work today, you could still just do something like the next example (assuming you're utilizing a property whose default value is `inherit`).
+
+<Card withCopy client:idle>
+```css
+.dark {
+  background: black;
+  --text-color: white;
+  color: var(--text-color);
+}
+
+@custom-variant dark {
+@container style(--text-color: white) {
+@slot;
+}
+}
+
+```
+</Card>
+
+So that isn't really an issue worth stopping anyone from using this solution. The leftover problem is that Firefox has thus far failed to support the feature at any level. But there's good news! We know they're close because if you go to `about:config` in Firefox, there is a flag for this feature!
+
+![Firefox about config search for layout.css.style-queries.enabled, as of 09/07/25](/tailwindcss-theme-nesting-assets/firefox-flag.png)
+
+If you flip the `layout.css.style-queries.enabled` flag to true, for all my testing, it seems to work perfectly well. This could be blocked from official default support by any number of reasons. So as it stands, it remains disabled and thus using Container Style Queries would exclude Firefox users (or rather, make your site look janky to them). That being said, this will be a powerful tool for use with TailwindCSS, and tons of other contexts, once it gets more wide-reaching support.
+```
