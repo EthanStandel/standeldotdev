@@ -65,12 +65,12 @@ And of course, you can combine both options by prescribing the default applied c
 However, all of these solutions still have the same problem of not supporting nesting. Of course, the `@media` queries all represent a document-wide setting for your whole page. But the class solution also has the same limitations. You might think that you could nest use of the theme classes, e.g.
 
 <Card withCopy client:idle>
-  ```tsx
-  <body class="light">
-    <CardComponent />
-    <CardComponent class="dark" />
-  </body>
-  ```
+```tsx
+<body class="light">
+  <CardComponent />
+  <CardComponent class="dark" />
+</body>
+```
 </Card>
 
 However, the problem here is that the `<CardComponent>` with the `.dark` class is _also_ underneath the `.light` class. So the styles of **both** variants will apply. This creates undefined behavior in TailwindCSS where the styles which _actually_ get applied is whichever classes are resolved last in the generated output CSS, and TailwindCSS cannot guarantee a generation order. Which means that in this example you'll likely get a combination of the styles of multiple themes. The problem is that CSS has historically lacked a selector to identify _proximity_, e.g. "prefer this selector because this class is closer to the target element."
@@ -88,22 +88,21 @@ So in TailwindCSS, we can create this new configuration!
 }
 
 @custom-variant dark {
-@container style(--theme: dark) {
-@slot;
-}
+  @container style(--theme: dark) {
+    @slot;
+  }
 }
 
 .light {
---theme: light;
+  --theme: light;
 }
 
 @custom-variant light {
-@container style(--theme: light) {
-@slot;
+  @container style(--theme: light) {
+    @slot;
+  }
 }
-}
-
-````
+```
 </Card>
 
 This new configuration allows for the `CardComponent` example above to run as expected. For any element under the `.light` class, the value of `--theme` will be `light`. If a different theme class is nested between the `.light` class and any other element, for all elements below the nearest theme class, their `--theme` value will properly match that nearest class. So we no longer have the problem of nested themes being beholden to the styles of all parenting variant selectors!
@@ -130,8 +129,7 @@ If you check the [caniuse.com support matrix](https://caniuse.com/css-container-
     @slot;
   }
 }
-````
-
+```
 </Card>
 
 It seems that browser developers have deemed the need for this to be such an edge case that the priority on this sub-feature has been specifically identified as very low. Even as things work today, you could still just do something like the next example (assuming you're utilizing a property whose default value is `inherit`).
@@ -145,11 +143,10 @@ It seems that browser developers have deemed the need for this to be such an edg
 }
 
 @custom-variant dark {
-@container style(--text-color: white) {
-@slot;
+  @container style(--text-color: white) {
+    @slot;
+  }
 }
-}
-
 ```
 </Card>
 
@@ -158,4 +155,3 @@ So that isn't really an issue worth stopping anyone from using this solution. Th
 ![Firefox about config search for layout.css.style-queries.enabled, as of 09/07/25](/tailwindcss-theme-nesting-assets/firefox-flag.png)
 
 If you flip the `layout.css.style-queries.enabled` flag to true, for all my testing, it seems to work perfectly well. This could be blocked from official default support by any number of reasons. So as it stands, it remains disabled and thus using Container Style Queries would exclude Firefox users (or rather, make your site look janky to them). That being said, this will be a powerful tool for use with TailwindCSS, and tons of other contexts, once it gets more wide-reaching support.
-```
