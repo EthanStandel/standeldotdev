@@ -1,15 +1,16 @@
 import styles from "./Button.module.scss";
-import { Component, mergeProps, splitProps } from "solid-js";
-import type { JSX } from "solid-js/types/jsx";
+import { type Component, type JSX, mergeProps, splitProps } from "solid-js";
 
 type BaseButtonProps = {
-  on?: "main" | "card",
+  on?: "main" | "card";
   icon?: boolean;
   inactive?: boolean;
 };
 
-type AnchorButtonProps = BaseButtonProps & JSX.AnchorHTMLAttributes<HTMLAnchorElement>;
-type ButtonButtonProps = BaseButtonProps & JSX.ButtonHTMLAttributes<HTMLButtonElement>;
+type AnchorButtonProps = BaseButtonProps &
+  JSX.AnchorHTMLAttributes<HTMLAnchorElement>;
+type ButtonButtonProps = BaseButtonProps &
+  JSX.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export type ButtonProps = AnchorButtonProps | ButtonButtonProps;
 
@@ -23,15 +24,17 @@ export const Button: Component<ButtonProps> = (props) => {
 
   const baseButtonProps = {
     children: (
-      <div class={[
-        local.icon && styles.icon,
-        local.on === "card" && styles.onCard,
-        styles.container
-      ].join(" ")}>
+      <div
+        class={[
+          local.icon && styles.icon,
+          local.on === "card" && styles.onCard,
+          styles.container,
+        ].join(" ")}
+      >
         {local.children}
       </div>
-    )
-  }
+    ),
+  };
 
   // must be function so that props can update
   const buttonProps = () => ({
@@ -40,15 +43,15 @@ export const Button: Component<ButtonProps> = (props) => {
       local.class,
       styles.button,
       local.on === "card" && styles.onCard,
-      local.icon && styles.icon
+      local.icon && styles.icon,
     ].join(" "),
-    ...baseButtonProps
+    ...baseButtonProps,
   });
 
   // using a dynamic selector bombed the server render
   if ("href" in native) {
-    return <a {...(buttonProps as () => AnchorButtonProps)()} />
+    return <a {...(buttonProps as () => AnchorButtonProps)()} />;
   } else {
-    return <button {...(buttonProps as () => ButtonButtonProps)()} />
+    return <button {...(buttonProps as () => ButtonButtonProps)()} />;
   }
-}
+};
