@@ -1,4 +1,9 @@
-import { Component, createEffect, createSignal, Setter } from "solid-js";
+import {
+  type Component,
+  createEffect,
+  createSignal,
+  type Setter,
+} from "solid-js";
 import { color } from "../../utils/color";
 import { Input } from "../Input";
 import styles from "./ColorPicker.module.scss";
@@ -13,7 +18,7 @@ export const ColorPicker: Component<VisualColorPickerProps> = (props) => {
   createEffect(() => {
     props.color;
     setError(false);
-  })
+  });
 
   return (
     <>
@@ -23,31 +28,32 @@ export const ColorPicker: Component<VisualColorPickerProps> = (props) => {
         error={error()}
         class={styles.onCard!}
         value={color.rgbToHex(props.color)}
-        oninput={e => {
+        oninput={(e) => {
           const { value } = e.currentTarget;
           if (value.length !== 7) {
-            setError(true)
+            setError(true);
             return;
           }
           const { r, g, b } = color.hexToRgb(value);
           if (
-            typeof r === "number" 
-            && typeof g === "number"
-            && typeof b === "number"
+            typeof r === "number" &&
+            typeof g === "number" &&
+            typeof b === "number"
           ) {
             props.setColor({ r, g, b });
             setError(false);
           } else {
             setError(true);
           }
-        }} />
+        }}
+      />
     </>
   );
-}
+};
 
 type VisualColorPickerProps = {
-  color: { r: number, g: number, b: number };
-  setColor: Setter<{ r: number, g: number, b: number }>;
+  color: { r: number; g: number; b: number };
+  setColor: Setter<{ r: number; g: number; b: number }>;
 };
 
 const VisualColorPicker: Component<VisualColorPickerProps> = (props) => {
@@ -57,9 +63,7 @@ const VisualColorPicker: Component<VisualColorPickerProps> = (props) => {
   const [hue, setHue] = createSignal(0);
   const [xOffset, setXOffset] = createSignal(0);
   const [yOffset, setYOffset] = createSignal(0);
-  const [latestRgb, setLatestRgb] = createSignal(
-    { r: -1, g: -1, b: -1 }
-  );
+  const [latestRgb, setLatestRgb] = createSignal({ r: -1, g: -1, b: -1 });
 
   createEffect(() => {
     const { r, g, b } = latestRgb();
@@ -67,20 +71,23 @@ const VisualColorPicker: Component<VisualColorPickerProps> = (props) => {
       return;
     }
     const { h, s, v } = color.rgbToHsv(
-      props.color.r, props.color.g, props.color.b
+      props.color.r,
+      props.color.g,
+      props.color.b
     );
-    
+
     setHue(h);
-    setXOffset(s / 100 * svPane!.clientWidth);
-    setYOffset(v / 100 * svPane!.clientHeight);
+    setXOffset((s / 100) * svPane!.clientWidth);
+    setYOffset((v / 100) * svPane!.clientHeight);
   });
 
   createEffect(() => {
-    const x = xOffset(), y = yOffset();
+    const x = xOffset(),
+      y = yOffset();
     const rgb = color.hsvToRgb(
       hue(),
-      x / svPane!.clientWidth * 100,
-      100 - y / svPane!.clientHeight * 100
+      (x / svPane!.clientWidth) * 100,
+      100 - (y / svPane!.clientHeight) * 100
     );
     setLatestRgb(rgb);
     props.setColor(rgb);
@@ -111,19 +118,27 @@ const VisualColorPicker: Component<VisualColorPickerProps> = (props) => {
       } else {
         setYOffset(yOffset);
       }
-    }
+    };
     window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-    }, { once: true });
-  }
+    window.addEventListener(
+      "pointerup",
+      () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+      },
+      { once: true }
+    );
+  };
 
   return (
     <div ref={container!} class={styles.container!}>
       <div ref={svPane!} class={styles.svPane!}>
-        <div style={{
-          background: `linear-gradient(to right, white, ${color.hueToRgbCss(hue())}`,
-        }} />
+        <div
+          style={{
+            background: `linear-gradient(to right, white, ${color.hueToRgbCss(
+              hue()
+            )}`,
+          }}
+        />
         <div ref={vPane!} class={styles.vPane!} onpointerdown={dragEvent} />
       </div>
       <button
@@ -133,10 +148,13 @@ const VisualColorPicker: Component<VisualColorPickerProps> = (props) => {
           transform: `translate(${xOffset()}px, ${yOffset()}px)`,
           background: color.hsvToRgbCss(
             hue(),
-            xOffset() / (svPane?.clientWidth ?? 0) * 100,
-            ((svPane?.clientHeight ?? 0) - yOffset()) / (svPane?.clientHeight ?? 0) * 100
-          )
-        }} />
+            (xOffset() / (svPane?.clientWidth ?? 0)) * 100,
+            (((svPane?.clientHeight ?? 0) - yOffset()) /
+              (svPane?.clientHeight ?? 0)) *
+              100
+          ),
+        }}
+      />
       <HueSlider hue={hue()} setHue={setHue} />
     </div>
   );
@@ -149,12 +167,13 @@ type HueSliderProps = {
 
 const HueSlider: Component<HueSliderProps> = (props) => {
   let bar: HTMLDivElement | undefined;
-  const hueSliderOffset = () => (bar?.clientWidth ?? 0) / 360 * props.hue;
-  const setHueSliderOffset = (xOffset: number) => props.setHue(xOffset / bar!.clientWidth * 360);
+  const hueSliderOffset = () => ((bar?.clientWidth ?? 0) / 360) * props.hue;
+  const setHueSliderOffset = (xOffset: number) =>
+    props.setHue((xOffset / bar!.clientWidth) * 360);
 
   const dragEvent = (event: PointerEvent) => {
     if (event.target === bar) {
-      setHueSliderOffset(event.offsetX)
+      setHueSliderOffset(event.offsetX);
     }
     const initialXOffset = event.clientX - hueSliderOffset();
     const handlePointerMove = (event: MouseEvent) => {
@@ -166,24 +185,29 @@ const HueSlider: Component<HueSliderProps> = (props) => {
       } else {
         setHueSliderOffset(xOffset);
       }
-    }
+    };
     window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-    }, { once: true });
-  }
+    window.addEventListener(
+      "pointerup",
+      () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+      },
+      { once: true }
+    );
+  };
   return (
     <>
       <div class={styles.sliderContainer!}>
-      <div ref={bar!} class={styles.hueBar!} onpointerdown={dragEvent} />
-      <button
-        onpointerdown={dragEvent}
-        class={[styles.selector, styles.hueSelector].join(" ")}
-        style={{
-          transform: `translateX(${hueSliderOffset()}px)`,
-          background: color.hueToRgbCss(props.hue),
-        }} />
+        <div ref={bar!} class={styles.hueBar!} onpointerdown={dragEvent} />
+        <button
+          onpointerdown={dragEvent}
+          class={[styles.selector, styles.hueSelector].join(" ")}
+          style={{
+            transform: `translateX(${hueSliderOffset()}px)`,
+            background: color.hueToRgbCss(props.hue),
+          }}
+        />
       </div>
     </>
-  )
-}
+  );
+};

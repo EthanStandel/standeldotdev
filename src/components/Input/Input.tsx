@@ -1,5 +1,5 @@
 import styles from "./Input.module.scss";
-import { Component, JSX, splitProps } from "solid-js";
+import { type Component, type JSX, splitProps } from "solid-js";
 
 export type InputProps = {
   label?: JSX.Element;
@@ -17,7 +17,7 @@ export const Input: Component<InputProps> = (props) => {
         class={[
           local.class,
           (!!props.value || !!native.placeholder) && styles.raised,
-          styles.input
+          styles.input,
         ].join(" ")}
       />
       <span>{local.label}</span>
