@@ -24,7 +24,7 @@ The problem here is that the TailwindCSS site is actually lying to the reader. T
 
 As it turns out, nesting themes in TailwindCSS hasn't actually been possible historically. TailwindCSS's recommended solution to multiple theme variants is all-or-nothing, only allowing one active theme at a time. The recommended configurations look like one the following two options.
 
-> **Side note:** The configurations seen in the documentation exlusively uses a shorthand syntax equivalent to what's seen below, but I find the expanded syntax to be more explanatory to what a variant selector is representing. This expanded syntax is only necessary if your variant uses multiple selectors with each variant needing multiple instances of `@slot`.
+> **Side note:** The configurations seen in the documentation exclusively uses a shorthand syntax equivalent to what's seen below, but I find the expanded syntax to be more explanatory to what a variant selector is representing. This expanded syntax is only necessary if your variant uses multiple selectors with each variant needing multiple instances of `@slot`.
 
 <Card withCopy client:idle>
 ```css
@@ -111,7 +111,7 @@ Here's [a running example of _the actual code from the TailwindCSS documentation
 
 ## The problems _with the solution_
 
-So based on the existance of the example linked above, you might wonder why we can't use this solution right now. Unfortunately this API is very new and is still being implemented in it's entirety in browsers.
+So based on the existence of the example linked above, you might wonder why we can't use this solution right now. Unfortunately this API is very new and is still being implemented in it's entirety in browsers.
 
 [![caniuse.com support matrix for CSS Container Queries, as of 09/07/25](/tailwindcss-theme-nesting-assets/caniusedotcom.png)](https://caniuse.com/css-container-queries-style)
 
