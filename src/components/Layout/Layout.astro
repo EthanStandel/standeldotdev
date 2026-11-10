@@ -19,29 +19,37 @@ const { date, minutesRead, categories, updated } = isBlogPost
   : { date: "", minutesRead: "", categories: [], updated: undefined };
 const now = new Date().toUTCString();
 
-const prefixedLightPalette = Object.entries(lightPalette).reduce((map, [key, value]) => {
-  map["light-" + key] = value;
-  return map;
-}, {} as Record<string, string>);
+const prefixedLightPalette = Object.entries(lightPalette).reduce(
+  (map, [key, value]) => {
+    map["light-" + key] = value;
+    return map;
+  },
+  {} as Record<string, string>,
+);
 
 const palette = {
   ...darkPalette,
   ...basePalette,
-  ...prefixedLightPalette
+  ...prefixedLightPalette,
 };
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
   <head>
-    <meta name="turbo-cache-control" content="no-cache">
+    <meta name="turbo-cache-control" content="no-cache" />
     <meta name="buildtime" content={now} />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="turbo-body" content="main" />
+    <meta name="darkreader-lock" />
     <link rel="icon" href="/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap"
+      rel="stylesheet"
+    />
     <meta name="generator" content={Astro.generator} />
     <title>{!!title ? title + " | standel.dev" : "standel.dev"}</title>
     <RouteTransitions />
@@ -49,15 +57,17 @@ const palette = {
   <body>
     <Header />
     <main id="main">
-      {isBlogPost && (
-        <ArticleHeading 
-          title={title}
-          date={date}
-          updated={updated}
-          readingTime={minutesRead}
-          categories={categories}
-        />
-      )}
+      {
+        isBlogPost && (
+          <ArticleHeading
+            title={title}
+            date={date}
+            updated={updated}
+            readingTime={minutesRead}
+            categories={categories}
+          />
+        )
+      }
       <slot />
       {isBlogPost && <Comments />}
     </main>
@@ -65,12 +75,10 @@ const palette = {
   </body>
 </html>
 <style lang="scss" is:global define:vars={palette}>
-  @import url(
-    "https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap"
-  );
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap");
 
   html {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 
     --palette-primary: var(--primary);
     --palette-secondary: var(--secondary);
@@ -161,10 +169,11 @@ const palette = {
       to right,
       var(--palette-primary),
       var(--palette-secondary)
-    )
+    );
   }
 
-  astro-slot, astro-island {
+  astro-slot,
+  astro-island {
     // this should be default but it goes missing at weird times
     // probably an issue between Astro & Turbo Drive
     display: contents !important;

@@ -42,15 +42,16 @@ export const MobileMenu: Component<MobileMenuProps> = (props) => {
         onclick={clickHandler}
         class={styles.mobileToggle!}
         style={{
-          "--icon-closed": `url("${Hamburger}")`,
-          "--icon-open": `url("${Close}")`,
+          "--icon-closed": `url("${Hamburger.src}")`,
+          "--icon-open": `url("${Close.src}")`,
         }}
         type="checkbox"
         aria-label="Mobile menu open"
       />
       <div
         ref={mobileMenu!}
-        class={[styles.mobileMenu!, exiting() && styles.exiting].join(" ")}
+        class={styles.mobileMenu!}
+        classList={{ [styles.exiting!]: exiting() }}
       >
         {props.children}
       </div>
