@@ -5,14 +5,179 @@ import Github from "@fortawesome/fontawesome-free/svgs/brands/github.svg?raw";
 import Globe from "@fortawesome/fontawesome-free/svgs/solid/globe.svg?raw";
 import LinkedIn from "@fortawesome/fontawesome-free/svgs/brands/linkedin.svg?raw";
 import Phone from "@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw";
-import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
+import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg?raw";
+
+const icons = {
+  email: Email,
+  phone: Phone,
+  pin: Pin,
+  globe: Globe,
+  github: Github,
+  linkedin: LinkedIn,
+};
+
+type Link = { text: string; href: string };
+/** Plain text, or a sequence of text and links rendered inline. */
+type RichText = string | (string | Link)[];
+type ContactItem = { icon: keyof typeof icons; text: string; href?: string };
+type HistoryItem = {
+  role: string;
+  org: string;
+  dates: string;
+  bullets?: RichText[];
+};
+type Section = {
+  heading: string;
+  items?: HistoryItem[];
+  bullets?: RichText[];
+};
+
+const resume: {
+  title: string;
+  name: string;
+  jobTitle: string;
+  summary: string;
+  skills: string[];
+  contact: ContactItem[][];
+  sections: Section[];
+  footer: RichText;
+} = {
+  title: "Ethan Standel - Resume",
+  name: "Ethan Standel",
+  jobTitle: "Senior Software Engineer · Fullstack Web & Mobile",
+  summary:
+    "Fullstack engineer with 9+ years building web and mobile applications, supporting design systems, and engineering backend services. I'm drawn to demanding requirements in performance, accessibility, internationalization, theming, scale, and data management. I care about developer experience and maintainable codebases. As the industry evolves, I am continuously refining how I use AI coding agents to ship faster with higher quality.",
+  skills: [
+    "Animation & interaction",
+    "Fullstack web apps",
+    "Component libraries",
+    "Design systems",
+    "Mobile apps",
+    "Legacy migrations",
+    "Database architecture",
+    "APIs & backend services",
+    "CMS integration",
+    "Auth & SSO",
+    "Ad integrations",
+    "AI-powered tools",
+    "Technical writing",
+    "Tech talks",
+  ],
+  contact: [
+    [
+      {
+        icon: "email",
+        text: "ethan@standel.dev",
+        href: "mailto:ethan@standel.dev",
+      },
+      { icon: "phone", text: "(207) 210-1127", href: "tel:2072101127" },
+      { icon: "pin", text: "Saco, Maine" },
+    ],
+    [
+      { icon: "globe", text: "standel.dev", href: "https://www.standel.dev" },
+      {
+        icon: "github",
+        text: "github.com/EthanStandel",
+        href: "https://github.com/EthanStandel",
+      },
+      {
+        icon: "linkedin",
+        text: "linkedin.com/in/ethan-standel",
+        href: "https://www.linkedin.com/in/ethan-standel/",
+      },
+    ],
+  ],
+  sections: [
+    {
+      heading: "Career experience",
+      items: [
+        {
+          role: "Software Engineer to Senior Software Engineer",
+          org: "DEPT®",
+          dates: "May 2021 to present",
+          bullets: [
+            "Embedded with multiple major tech clients, adapting to their proprietary version control, code review processes, developer tooling, and custom internal frameworks. Shipped production code with traditional coding IDEs as well as internal agentic IDEs.",
+            "Built performance-optimized, animation-heavy marketing sites with analytics integrations for multiple clients, including serving as tech lead for a major entertainment & tech brand (React + Motion).",
+            "Implemented a responsive ad layout schema integrated with Google Ad Manager (GAM) for a Vue/Nuxt app.",
+            "Led multiple legacy migrations onto modern technical stacks (React & Next.js), reintegrating existing functionality as well as introducing new features like SSO, account management, and CMS integrations.",
+            "Architected and implemented design and component systems using Module Federation & microfrontends for clients in B2B environments.",
+            "Built customer-facing apps for multiple clients, including an AI-powered document processing tool that generates synopses and analysis, and a location-based portal with custom Google Maps integrations.",
+            "Architected the digitization of a legacy paper application process as a fullstack web app with complete & auditable change history in a PostgreSQL database on a Node.js backend.",
+            "Supported clients in transitioning from JavaScript to TypeScript for application stability.",
+            "Contributing actively to company engineering culture with internal tech talks and project retrospective reviews as well as articles on the public blog.",
+          ],
+        },
+        {
+          role: "Software Engineer I to Software Engineer II",
+          org: "WEX",
+          dates: "May 2017 to May 2021",
+          bullets: [
+            "Developed Ionic, Cordova, and Angular mobile apps with location services and live notifications, backed by Java + Spring microservices.",
+            "Built an Angular + Material ecommerce site integrating first- and third-party APIs via a BFF microservice.",
+            "Helped architect an incremental migration path off a legacy application and integrated a new SSO system.",
+            "Supported the transition to a cloud-native CI/CD pipeline, as well as the conversion from on-prem deployments to AWS.",
+          ],
+        },
+      ],
+    },
+    {
+      heading: "Education",
+      items: [
+        {
+          role: "Bachelor of Science in Computer Science",
+          org: "University of Southern Maine",
+          dates: "Sept 2013 to May 2017",
+        },
+      ],
+    },
+    {
+      heading: "Open source & side projects",
+      bullets: [
+        [
+          {
+            text: "@deepsignal/react",
+            href: "https://www.npmjs.com/package/@deepsignal/react",
+          },
+          ": React state management built on ",
+          {
+            text: "@preact/signals",
+            href: "https://www.npmjs.com/package/@preact/signals",
+          },
+          ", using the ",
+          {
+            text: "signal primitive to bypass the VDOM",
+            href: "https://engineering.dept.global/why-i-built-a-new-state-management-library",
+          },
+          " for fine-grained updates.",
+        ],
+        [
+          { text: "cakeelizabeth.com", href: "https://cakeelizabeth.com/" },
+          ": Next.js site for my wife's bakery.",
+        ],
+      ],
+    },
+  ],
+  footer: [
+    "This resume is written in HTML & CSS. See it live at ",
+    { text: "standel.dev/resume", href: "https://www.standel.dev/resume" },
+    " or view the source at ",
+    {
+      text: "standel.dev/resume-src",
+      href: "https://www.standel.dev/resume-src",
+    },
+    ".",
+  ],
+};
+
+const parts = (value: RichText) =>
+  typeof value === "string" ? [value] : value;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Resume</title>
+    <title>{resume.title}</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;700&display=swap"
       rel="stylesheet"
@@ -22,160 +187,119 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
     <div class="container">
       <div class="content">
         <div class="intro">
-          <div class="text">
-            <h1 class="name">Ethan Standel</h1>
-            <h2 class="title">Senior software developer</h2>
-            <p class="about-me">
-              {`Fullstack software developer focussing on building applications & systems that require a unique challenge. I love building systems with strict, interesting, thoughtful, or just plain fun requirements in the areas of aesthetic, behavior, scalability, performance, accessibility, internationalization, or themability. I value developer experience, automated workflows, and shipping code. Hopefully your organization is looking for developers who share my interests and values!`}
-            </p>
-          </div>
+          <h1 class="name">{resume.name}</h1>
+          <h2 class="title">{resume.jobTitle}</h2>
+          <p class="about-me">{resume.summary}</p>
+          <p class="skills">
+            {
+              resume.skills.map((skill, i) => (
+                <>
+                  {i > 0 && " · "}
+                  <span>{skill}</span>
+                </>
+              ))
+            }
+          </p>
         </div>
 
         <div class="contact">
-          <ul class="left">
-            <li>
-              <Fragment set:html={Email} />
-              <p><a href="mailto:ethan@standel.dev">ethan@standel.dev</a></p>
-            </li>
-            <li>
-              <Fragment set:html={Phone} />
-              <p><a href="tel:2072101127">(207) 210-1127</a></p>
-            </li>
-            <li>
-              <Fragment set:html={Pin} />
-              <p>Saco, Maine</p>
-            </li>
-          </ul>
-          <ul class="right">
-            <li>
-              <Fragment set:html={Globe} />
-              <p><a href="https://www.standel.dev">standel.dev</a></p>
-            </li>
-            <li>
-              <Fragment set:html={Github} />
-              <p>
-                <a href="https://github.com/EthanStandel"
-                  >github.com/EthanStandel</a
-                >
-              </p>
-            </li>
-            <li>
-              <Fragment set:html={LinkedIn} />
-              <p>
-                <a href="https://www.linkedin.com/in/ethan-standel/"
-                  >linkedin.com/in/ethan-standel</a
-                >
-              </p>
-            </li>
-          </ul>
+          {
+            resume.contact.map((column) => (
+              <ul>
+                {column.map(({ icon, text, href }) => (
+                  <li>
+                    <Fragment set:html={icons[icon]} />
+                    <p>{href ? <a href={href}>{text}</a> : text}</p>
+                  </li>
+                ))}
+              </ul>
+            ))
+          }
         </div>
 
-        <div class="work-history">
-          <h3>Career experience</h3>
-          <ul>
-            <li class="history-item">
-              <h4>Software engineer to Senior software engineer</h4>
-              <h5>DEPT® - May 2021 to present</h5>
-              <ul class="history-details">
-                <li>
-                  {`Transitioned client site from a full CMS to NextJS with a headless CMS. Integrated SSO authentication and built a full account management microfrontend.`}
-                </li>
-                <li>
-                  {`Transitioned client legacy application to a new React application, utilizing federated modules to support multi-team scalability. Integrated SSO authentication and helped build out account management microfrontend. Also led architecture for internal design system & component library. Fully built new header, footer, menu, and search components.`}
-                </li>
-                <li>
-                  {`Build client's new marketing site, maximizing on performance, analytics integrations, and animations.`}
-                </li>
-                <li>
-                  {`Built out user portal for accessing services based on location, and built custom Google Maps integrations.`}
-                </li>
-                <li>
-                  {`Built an application for processing documents and utilizing AI to get synopsis and analysis of documents.`}
-                </li>
-                <li>
-                  {`Built a fullstack application to support a previously paper application process. Designed database to support infinite historic change tracking.`}
-                </li>
-              </ul>
-            </li>
-            <li class="history-item">
-              <h4>Software engineer I to Software engineer II</h4>
-              <h5>Wex® - May 2017 to May 2021</h5>
-              <ul class="history-details">
-                <li>
-                  {`Developed mobile applications using Ionic, Cordova, and Angular. Integrated features like location services and live notifications. Supported with microservices written with Java + Spring.`}
-                </li>
-                <li>
-                  {`Built an ecommerce site using Angular + Material Design. Integrated third & first party APIs using BFF microservice model.`}
-                </li>
-                <li>
-                  {`Helped architect and build a system for incrementally upgrading a legacy application to newer technologies. Integrated new SSO authentication system.`}
-                </li>
-              </ul>
-            </li>
-            <li class="history-item education">
-              <h3>Education</h3>
-              <h4>Bachelors of Science in Computer Science</h4>
-              <h5>University of Southern Maine - Sept 2013 to May 2017</h5>
-              <ul class="history-details">
-                <li>
-                  {`Studied lower level engineering, computer mechanics, operating systems, algorithms, and data structures.`}
-                </li>
-              </ul>
-            </li>
-            <li class="history-item oss">
-              <h3>OSS & side projects</h3>
-              <ul class="history-details">
-                <li>
-                  <a href="https://www.npmjs.com/package/@deepsignal/react"
-                    >@deepsignal/react</a
-                  > is a state management library I built around <a
-                    href="https://www.npmjs.com/package/@preact/signals"
-                    >@preact/signals</a
-                  >. If used correctly, it could be the fastest React state
-                  management library due to the <a
-                    href="https://engineering.deptagency.com/why-i-built-a-new-state-management-library"
-                    >signal primitive's bypass of the VDOM</a
-                  >
-                </li>
-                <li>
-                  <a href="https://cakeelizabeth.com/">cakeelizabeth.com</a> is the
-                  website for my wife's bakery, written in NextJS
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
+        {
+          resume.sections.map((section) => (
+            <section>
+              <h3>{section.heading}</h3>
+              {section.items?.map((item) => (
+                <div class="history-item">
+                  <h4>{item.role}</h4>
+                  <h5>{`${item.org} · ${item.dates}`}</h5>
+                  {item.bullets && (
+                    <ul>
+                      {item.bullets.map((bullet) => (
+                        <li>
+                          {parts(bullet).map((part) =>
+                            typeof part === "string" ? (
+                              part
+                            ) : (
+                              <a href={part.href}>{part.text}</a>
+                            ),
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+              {section.bullets && (
+                <ul>
+                  {section.bullets.map((bullet) => (
+                    <li>
+                      {parts(bullet).map((part) =>
+                        typeof part === "string" ? (
+                          part
+                        ) : (
+                          <a href={part.href}>{part.text}</a>
+                        ),
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))
+        }
+
         <div class="about-resume">
           <p>
-            This resume was written entirely in HTML & CSS. See it live at <a
-              href="https://www.standel.dev/resume">standel.dev/resume</a
-            > or see the source code at <a
-              href="https://www.standel.dev/resume-src"
-              >standel.dev/resume-src</a
-            >
+            {
+              parts(resume.footer).map((part) =>
+                typeof part === "string" ? (
+                  part
+                ) : (
+                  <a href={part.href}>{part.text}</a>
+                ),
+              )
+            }
           </p>
         </div>
       </div>
     </div>
-    <style lang="scss" is:global define:vars={{ check: `url("${Check}")` }}>
+    <style
+      lang="scss"
+      is:global
+      define:vars={{
+        check: `url("data:image/svg+xml,${encodeURIComponent(Check)}")`,
+      }}
+    >
+      @page {
+        size: letter;
+        margin: 0;
+      }
+
       html,
       body {
-        --primary: #ff00aa;
-        --secondary: #0080ff;
+        --link: #0066cc;
         --dark: #1f1f1f;
         --light: #4d4d4d;
         --lighter: #686868;
-        --highlight: #f0ffff;
+        --rule: #d9d9d9;
         @media print {
-          --primary: var(--dark);
-          --secondary: var(--dark);
-          --highlight: transparent;
-
-          .no-print {
-            display: none !important;
-          }
+          --link: var(--dark);
         }
         font-family: "Poppins", sans-serif;
+        color: var(--dark);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -195,86 +319,59 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
 
         .content {
           margin: 0.5in;
-          text-align: justify;
           display: flex;
           flex-direction: column;
           flex-grow: 1;
 
           a {
-            color: var(--secondary);
+            color: var(--link);
             text-decoration: none;
           }
 
           .intro {
             display: flex;
-            align-items: center;
-            gap: 1em;
-            width: 100%;
+            flex-direction: column;
+            gap: 0.25rem;
 
-            h1.name {
-              font-size: 22pt;
-              line-height: 1;
-              @media not print {
-                background: linear-gradient(
-                  to right,
-                  var(--primary),
-                  var(--secondary)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-              }
-            }
-
-            .headshot {
-              border: 0.5em solid var(--primary);
-              height: 9em;
-              width: 9em;
-              border-radius: 5em;
-              display: inline-block;
-
-              > img {
-                height: 9em;
-                width: 9em;
-                border-radius: 4.5em;
-                object-fit: cover;
-                @media print {
-                  filter: grayscale(100%);
-                }
-              }
-            }
-
-            .text {
-              display: flex;
-              flex-direction: column;
-              gap: 0.25rem;
-            }
-
-            .name,
-            .title,
-            .about-me {
+            h1,
+            h2,
+            p {
               margin: 0;
               line-height: 1.15;
             }
 
+            .name {
+              font-size: 22pt;
+              line-height: 1;
+            }
+
             .title {
+              font-size: 13pt;
               color: var(--light);
             }
 
             .about-me {
               font-size: 9pt;
+              text-align: justify;
+            }
+
+            .skills {
+              font-size: 8.5pt;
+              color: var(--light);
+              margin-top: 0.4em;
+              line-height: 1.35;
+
+              span {
+                white-space: nowrap;
+              }
             }
           }
 
           .contact {
-            padding-top: 0.25em;
-            padding-bottom: 0.25em;
-            padding-left: 0.5in;
-            padding-right: 0.5in;
-            background: var(--highlight);
-            margin-left: -0.5in;
-            margin-right: -0.5in;
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
+            margin: 0.5em 0;
+            padding: 0.35em 0;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
             display: flex;
             ul {
               width: 50%;
@@ -289,58 +386,69 @@ import Check from "@fortawesome/fontawesome-free/svgs/solid/check.svg";
             }
             p {
               margin: 0;
-              line-height: 2.25;
+              line-height: 1.75;
               font-size: 10pt;
             }
             svg {
-              height: 25px !important;
-              width: 25px !important;
-              fill: var(--primary) !important;
+              height: 16px !important;
+              width: 16px !important;
+              fill: var(--light) !important;
             }
           }
 
-          .work-history {
-            > ul {
-              list-style-type: none;
-              margin: 0;
-              padding: 0;
-            }
-
-            ul.history-details {
-              padding-inline-start: 20px;
-              list-style-image: var(--check);
-
-              li {
-                margin-top: 0.25em;
-                &::marker {
-                  font-size: 1.5em;
-                  // all other browsers plus Chromium printout act like this is the default
-                  line-height: 0;
-                }
-              }
-            }
+          section {
+            margin-bottom: 0.35em;
 
             h3,
             h4,
-            h5,
-            p {
+            h5 {
               margin: 0;
               line-height: 1.5;
             }
+            h3 {
+              font-size: 12.5pt;
+            }
+            h4,
+            h5 {
+              line-height: 1.4;
+            }
             h4 {
+              font-size: 10.5pt;
               color: var(--light);
             }
             h5 {
+              font-size: 9pt;
               color: var(--lighter);
             }
-            p {
-              font-size: 11pt;
+
+            .history-item:not(:last-child) {
+              margin-bottom: 0.25em;
             }
-            .history-item {
-              .history-details {
-                font-size: 10pt;
-                line-height: 1.25;
-                margin-bottom: 0.5em;
+
+            ul {
+              margin: 0.15em 0 0;
+              padding-inline-start: 18px;
+              font-size: 9.5pt;
+              line-height: 1.25;
+              text-align: justify;
+
+              li {
+                margin-top: 0.12em;
+                list-style: none;
+                position: relative;
+
+                &::before {
+                  content: "";
+                  position: absolute;
+                  left: -16px;
+                  top: 0.22em;
+                  width: 0.85em;
+                  height: 0.85em;
+                  background-color: var(--dark);
+                  mask: var(--check) center / contain no-repeat;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
               }
             }
           }
